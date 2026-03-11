@@ -49,7 +49,7 @@ export default function BrandSignupPage() {
       });
       const data = await res.json();
       if (data.success) {
-        router.push(DEFAULT_REDIRECT);
+        router.push("/onboarding/brand");
       } else {
         setError(data.error || "Signup failed");
       }

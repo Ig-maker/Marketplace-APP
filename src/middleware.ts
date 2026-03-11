@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/session-edge";
 import { PUBLIC_ROUTES, DEFAULT_REDIRECT } from "@/lib/constants";
 
-const PROTECTED_PATHS = ["/dashboard", "/settings", "/billing"];
+const PROTECTED_PATHS = ["/dashboard", "/settings", "/billing", "/onboarding"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
