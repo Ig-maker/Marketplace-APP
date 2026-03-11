@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --off:      #F5F5F0;
+  --surface:  #FFFFFF;
+  --elevated: #F0F0EB;
+  --dark:     #111111;
+  --border:   #E2E2DC;
+  --border2:  #C8C8C2;
+  --text:     #111111;
+  --text2:    #5A5A54;
+  --text3:    #999994;
+  --muted:    #888880;
+  --lime:     #CBEC45;
+  --lime-dark:#B5D93A;
+  --lime-glow:rgba(203,236,69,0.25);
+  --green:    #18A664;
+  --red:      #C0392B;
+  --sh:    0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  --sh-md: 0 4px 20px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04);
+  --r:    8px;
+  --r-lg: 14px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@theme inline {
+  --color-background: var(--off);
+  --color-foreground: var(--text);
+  --color-surface: var(--surface);
+  --color-dark: var(--dark);
+  --color-lime: var(--lime);
+  --color-lime-dark: var(--lime-dark);
+  --color-border: var(--border);
+  --color-border2: var(--border2);
+  --color-muted: var(--muted);
+  --color-text2: var(--text2);
+  --color-text3: var(--text3);
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'DM Serif Display', serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--off);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Animation keyframes */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
