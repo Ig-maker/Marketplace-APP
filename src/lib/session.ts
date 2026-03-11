@@ -47,7 +47,6 @@ export async function getSession(): Promise<Session | null> {
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
 
-  // Clear host-only cookie variant
   cookieStore.set(AUTH_COOKIE_NAME, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -55,33 +54,8 @@ export async function destroySession(): Promise<void> {
     maxAge: 0,
     expires: new Date(0),
     path: "/",
+    domain: process.env.NODE_ENV === "production" ? ".shelvian.co" : undefined,
   });
-
-  // Clear domain-scoped cookie variant (production)
-  if (process.env.NODE_ENV === "production") {
-    cookieStore.set(AUTH_COOKIE_NAME, "", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: 0,
-      expires: new Date(0),
-      path: "/",
-      domain: ".shelvian.co",
-    });
-  }
-
-  // Backward-compat: clear non-dot domain variant as well
-  if (process.env.NODE_ENV === "production") {
-    cookieStore.set(AUTH_COOKIE_NAME, "", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: 0,
-      expires: new Date(0),
-      path: "/",
-      domain: "shelvian.co",
-    });
-  }
 }
 
 export async function getCurrentUser(): Promise<User | null> {

@@ -26,19 +26,9 @@ export function AppShell({
 
     setIsLoggingOut(true);
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to log out");
-      }
-
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
       router.replace("/login");
       router.refresh();
-      window.location.assign("/login");
     } finally {
       setIsLoggingOut(false);
     }
