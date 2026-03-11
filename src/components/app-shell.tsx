@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import type { User } from "@/types/auth";
 
 const NAV_ITEMS = [
@@ -16,12 +17,28 @@ export function AppShell({
   user: User;
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to log out");
+      }
+
+      window.location.assign("/login");
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -72,9 +89,11 @@ export function AppShell({
           </div>
           <button
             onClick={handleLogout}
-            className="text-[12px] font-medium text-[var(--text3)] bg-transparent border border-[var(--border)] rounded-[var(--r)] px-3 py-1.5 cursor-pointer hover:text-[var(--text)] hover:border-[var(--border2)] transition-colors"
+            type="button"
+            disabled={isLoggingOut}
+            className="text-[12px] font-medium text-[var(--text)] bg-transparent border border-[var(--border)] rounded-[var(--r)] px-3 py-1.5 cursor-pointer hover:border-[var(--border2)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Log out
+            {isLoggingOut ? "Logging Out..." : "Log Out"}
           </button>
         </div>
       </header>
