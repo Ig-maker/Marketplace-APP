@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shelvian — Sign Up</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --off:      #F5F5F0;
+  --surface:  #FFFFFF;
+  --dark:     #111111;
+  --border:   #E2E2DC;
+  --text2:    #5A5A54;
+  --muted:    #888880;
+  --lime:     #CBEC45;
+  --lime-dark:#B5D93A;
+  --sh:    0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  --sh-lg: 0 16px 48px rgba(0,0,0,0.11);
+  --r: 12px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --f-head: 'DM Serif Display', serif;
+  --f-body: 'DM Sans', sans-serif;
+  --f-mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: var(--f-body);
+  background: var(--off);
+  color: var(--dark);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: .025; pointer-events: none; z-index: 0;
+}
+
+nav {
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: 1px solid var(--border);
+  position: relative; z-index: 10; flex-shrink: 0;
+  background: rgba(245,245,240,0.97);
+  backdrop-filter: blur(12px);
+}
+
+.nav-back {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--muted); text-decoration: none;
+  transition: color 150ms; width: 80px;
+}
+.nav-back:hover { color: var(--dark); }
+.nav-back svg { width: 13px; height: 13px; }
+
+/* ── LOGO ── */
+.logo {
+  text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.logo-wordmark {
+  font-family: var(--f-head);
+  font-size: 19px;
+  color: #111;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.nav-login {
+  font-size: 13px; color: var(--muted); text-decoration: none;
+  transition: color 150ms; width: 80px; text-align: right;
+}
+.nav-login:hover { color: var(--dark); }
+
+main {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px 24px;
+  position: relative; z-index: 1;
+}
+
+.heading {
+  font-family: var(--f-head); font-size: 32px;
+  letter-spacing: -0.02em; text-align: center;
+  margin-bottom: 40px; color: var(--dark);
+}
+.heading em {
+  font-style: italic;
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+
+.cards {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; width: 100%; max-width: 640px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 32px 28px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 12px;
+  transition: all 220ms var(--ease);
+  box-shadow: var(--sh);
+}
+.card:hover { transform: translateY(-3px); box-shadow: var(--sh-lg); }
+.card.brand:hover  { border-color: var(--lime); }
+.card.ambassador:hover { border-color: var(--dark); }
+
+.card-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 4px;
+}
+.brand .card-icon    { background: var(--lime); }
+.ambassador .card-icon { background: var(--dark); }
+.card-icon svg { width: 20px; height: 20px; }
+
+.card-title { font-family: var(--f-head); font-size: 22px; color: var(--dark); line-height: 1.2; }
+.card-desc  { font-size: 13px; color: var(--text2); line-height: 1.65; flex: 1; }
+
+.card-action {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 8px; padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  transition: color 150ms;
+}
+.card-action svg { width: 15px; height: 15px; transition: transform 200ms var(--ease); }
+.card:hover .card-action { color: var(--dark); }
+.card:hover .card-action svg { transform: translateX(3px); }
+
+.login-link {
+  margin-top: 28px; font-size: 13px; color: var(--muted); text-align: center;
+}
+.login-link a {
+  color: var(--dark); font-weight: 600;
+  text-decoration: none; border-bottom: 1px solid var(--border);
+}
+.login-link a:hover { border-color: var(--dark); }
+
+footer {
+  padding: 18px 40px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 1; flex-shrink: 0;
+}
+.footer-copy { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; transition: color 150ms; }
+.footer-links a:hover { color: var(--dark); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.fade   { animation: fadeUp 450ms var(--ease) both; }
+.fade-1 { animation: fadeUp 450ms 80ms var(--ease) both; }
+.fade-2 { animation: fadeUp 450ms 160ms var(--ease) both; }
+
+@media (max-width: 560px) {
+  .cards { grid-template-columns: 1fr; max-width: 360px; }
+  .heading { font-size: 26px; }
+  nav, footer { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-back">
+    <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2L3 6.5 8 11"/></svg>
+    Back
+  </a>
+
+  <a href="/" class="logo">
+    <!-- Dark rounded square with lime starburst icon, matching uploaded logo -->
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="34" height="34" rx="8" fill="#1A1A14"/>
+      <line x1="17" y1="8.5"  x2="17" y2="25.5" stroke="#CBEC45" stroke-width="2.3" stroke-linecap="round"/>
+      <line x1="8.5"  y1="17" x2="25.5" y2="17" stroke="#CBEC45" stroke-width="2.3" stroke-linecap="round"/>
+      <line x1="11" y1="11" x2="23" y2="23" stroke="#CBEC45" stroke-width="2.3" stroke-linecap="round"/>
+      <line x1="23" y1="11" x2="11" y2="23" stroke="#CBEC45" stroke-width="2.3" stroke-linecap="round"/>
+    </svg>
+    <span class="logo-wordmark">Shelvian</span>
+  </a>
+
+  <a href="/login" class="nav-login">Log in</a>
+</nav>
+
+<main>
+  <h1 class="heading fade">Join as a <em>brand</em> or ambassador?</h1>
+
+  <div class="cards">
+
+    <a href="/signup/brand" class="card brand fade-1">
+      <div class="card-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="16" height="12" rx="2"/>
+          <path d="M6 5V4a2 2 0 014 0v1M10 11v2"/>
+          <circle cx="10" cy="10" r="1.5"/>
+        </svg>
+      </div>
+      <div class="card-title">I'm a brand</div>
+      <div class="card-desc">Post shifts, find vetted ambassadors near your stores, and track events live — all from one dashboard.</div>
+      <div class="card-action">
+        Get started
+        <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9M8 3.5l4 4-4 4"/></svg>
+      </div>
+    </a>
+
+    <a href="/signup/ambassador" class="card ambassador fade-2">
+      <div class="card-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10" cy="7" r="3.5"/>
+          <path d="M3 18c0-4 3.1-6.5 7-6.5s7 2.5 7 6.5"/>
+        </svg>
+      </div>
+      <div class="card-title">I'm an ambassador</div>
+      <div class="card-desc">Browse open shifts near you, pick your schedule, and get paid within 24 hours of every completed event.</div>
+      <div class="card-action">
+        Get started
+        <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h9M8 3.5l4 4-4 4"/></svg>
+      </div>
+    </a>
+
+  </div>
+
+  <p class="login-link fade-2">Already have an account? <a href="/login">Log in</a></p>
+</main>
+
+<footer>
+  <span class="footer-copy">© 2026 Shelvian</span>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

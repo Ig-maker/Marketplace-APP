@@ -893,6 +893,7 @@ function switchRole(role) {
   const hl = document.querySelector('.left-headline');
   const ambContent = document.getElementById('left-ambassador-content');
   const brandContent = document.getElementById('left-brand-content');
+  const statsEls = document.querySelectorAll('.left-stat-n span, .left-stat-l');
 
   if (role === 'brand') {
     hl.innerHTML = 'Manage your<br>campaigns <em>live</em>.';
