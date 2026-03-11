@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import type { User } from "@/types/auth";
 
 const NAV_ITEMS = [
@@ -17,6 +17,7 @@ export function AppShell({
   user: User;
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -35,6 +36,8 @@ export function AppShell({
         throw new Error("Failed to log out");
       }
 
+      router.replace("/login");
+      router.refresh();
       window.location.assign("/login");
     } finally {
       setIsLoggingOut(false);
