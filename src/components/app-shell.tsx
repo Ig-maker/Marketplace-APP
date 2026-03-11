@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import type { User } from "@/types/auth";
 
@@ -18,10 +19,24 @@ export function AppShell({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+      });
+    } finally {
+      router.replace("/login");
+      router.refresh();
+      window.location.assign("/login");
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -72,9 +87,11 @@ export function AppShell({
           </div>
           <button
             onClick={handleLogout}
-            className="text-[12px] font-medium text-[var(--text3)] bg-transparent border border-[var(--border)] rounded-[var(--r)] px-3 py-1.5 cursor-pointer hover:text-[var(--text)] hover:border-[var(--border2)] transition-colors"
+            type="button"
+            disabled={isLoggingOut}
+            className="text-[12px] font-medium text-[var(--text)] bg-transparent border border-[var(--border)] rounded-[var(--r)] px-3 py-1.5 cursor-pointer hover:border-[var(--border2)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Log out
+            {isLoggingOut ? "Logging Out..." : "Log Out"}
           </button>
         </div>
       </header>

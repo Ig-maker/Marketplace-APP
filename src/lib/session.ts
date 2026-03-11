@@ -46,7 +46,41 @@ export async function getSession(): Promise<Session | null> {
 
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(AUTH_COOKIE_NAME);
+  const secure = process.env.NODE_ENV === "production";
+
+  // Host-only variant
+  cookieStore.set(AUTH_COOKIE_NAME, "", {
+    httpOnly: true,
+    secure,
+    sameSite: "lax",
+    maxAge: 0,
+    expires: new Date(0),
+    path: "/",
+  });
+
+  if (secure) {
+    // Domain variant used by current cookie config
+    cookieStore.set(AUTH_COOKIE_NAME, "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 0,
+      expires: new Date(0),
+      path: "/",
+      domain: ".shelvian.co",
+    });
+
+    // Backward compatibility variant without leading dot
+    cookieStore.set(AUTH_COOKIE_NAME, "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 0,
+      expires: new Date(0),
+      path: "/",
+      domain: "shelvian.co",
+    });
+  }
 }
 
 export async function getCurrentUser(): Promise<User | null> {
