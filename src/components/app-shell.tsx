@@ -25,11 +25,13 @@ export function AppShell({
     if (isLoggingOut) return;
 
     setIsLoggingOut(true);
+
+    // Prefer server-driven logout navigation; keep router fallback for merge-safe compatibility.
     try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+      window.location.assign("/api/auth/logout");
+    } catch {
       router.replace("/login");
       router.refresh();
-    } finally {
       setIsLoggingOut(false);
     }
   };
