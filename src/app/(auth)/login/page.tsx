@@ -204,7 +204,7 @@ function LoginContent() {
             </div>
             <span className="font-serif text-xl text-white tracking-tight">Shelvian</span>
           </a>
-          <a href="/" className="text-[13px] font-medium text-white/40 no-underline hover:text-white/80 transition-colors">
+          <a href="https://shelvian.co" className="text-[13px] font-medium text-white/40 no-underline hover:text-white/80 transition-colors">
             Back to site &rarr;
           </a>
         </div>
