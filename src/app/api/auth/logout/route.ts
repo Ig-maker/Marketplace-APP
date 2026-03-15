@@ -2,24 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
 
 function clearAuthCookies(response: NextResponse): NextResponse {
-  const common = {
-    name: AUTH_COOKIE_NAME,
-    value: "",
-    httpOnly: true,
-    sameSite: "lax" as const,
-    path: "/",
-    maxAge: 0,
-    expires: new Date(0),
-    secure: process.env.NODE_ENV === "production",
-  };
+  const isProduction = process.env.NODE_ENV === "production";
+  const secure = isProduction ? "; Secure" : "";
+  const base = `${AUTH_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 
-  // Host-only cookie
-  response.cookies.set(common);
+  // Host-only cookie (no domain)
+  response.headers.append("Set-Cookie", `${base}${secure}`);
 
-  if (process.env.NODE_ENV === "production") {
-    // Domain cookie variants
-    response.cookies.set({ ...common, domain: ".shelvian.co", secure: true });
-    response.cookies.set({ ...common, domain: "shelvian.co", secure: true });
+  if (isProduction) {
+    // Domain cookie variants — must use headers.append so each Set-Cookie
+    // header is sent separately (response.cookies.set overwrites by name).
+    response.headers.append("Set-Cookie", `${base}; Domain=.shelvian.co; Secure`);
+    response.headers.append("Set-Cookie", `${base}; Domain=shelvian.co; Secure`);
   }
 
   return response;
