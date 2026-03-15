@@ -28,7 +28,7 @@ export function AppShell({
     setLogoutError(null);
     setIsLoggingOut(true);
 
-    // Prefer server-driven logout navigation; keep fetch + router fallback for merge-safe compatibility.
+    // Prefer server-driven logout navigation; keep fetch fallback for merge-safe compatibility.
     try {
       window.location.assign("/api/auth/logout");
       return;
@@ -44,7 +44,7 @@ export function AppShell({
           throw new Error("Unable to log out right now. Please try again.");
         }
 
-        router.replace("/login");
+        window.location.assign("/login");
         router.refresh();
       } catch {
         setLogoutError("Unable to log out right now. Please try again.");
@@ -110,7 +110,6 @@ export function AppShell({
           </button>
         </div>
       </header>
-
 
       {logoutError ? (
         <div className="mx-auto mt-4 max-w-5xl px-6">
