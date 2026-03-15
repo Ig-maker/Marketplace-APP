@@ -20,22 +20,12 @@ export function AppShell({
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     if (isLoggingOut) return;
-
     setIsLoggingOut(true);
-
-    try {
-      const res = await fetch("/api/auth/logout", { method: "POST" });
-      if (res.ok) {
-        window.location.href = "/";
-      } else {
-        // Fallback: use GET route which also clears cookies and redirects
-        window.location.assign("/api/auth/logout");
-      }
-    } catch {
-      window.location.assign("/api/auth/logout");
-    }
+    // Full-page navigation to the GET logout route.
+    // The server clears the session cookie and redirects to /.
+    window.location.href = "/api/auth/logout";
   };
 
   return (
