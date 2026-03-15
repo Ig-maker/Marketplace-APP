@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { User } from "@/types/auth";
 
 const NAV_ITEMS = [
@@ -17,7 +17,6 @@ export function AppShell({
   user: User;
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -26,13 +25,16 @@ export function AppShell({
 
     setIsLoggingOut(true);
 
-    // Prefer server-driven logout navigation; keep router fallback for merge-safe compatibility.
     try {
-      window.location.assign("/api/auth/logout");
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      if (res.ok) {
+        window.location.href = "/";
+      } else {
+        // Fallback: use GET route which also clears cookies and redirects
+        window.location.assign("/api/auth/logout");
+      }
     } catch {
-      router.replace("/");
-      router.refresh();
-      setIsLoggingOut(false);
+      window.location.assign("/api/auth/logout");
     }
   };
 
