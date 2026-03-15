@@ -28,29 +28,24 @@ export function AppShell({
     setLogoutError(null);
     setIsLoggingOut(true);
 
-    // Prefer server-driven logout navigation; keep fetch fallback for merge-safe compatibility.
     try {
-      window.location.assign("/api/auth/logout");
-      return;
-    } catch {
-      try {
-        const response = await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include",
-          cache: "no-store",
-        });
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+      });
 
-        if (!response.ok) {
-          throw new Error("Unable to log out right now. Please try again.");
-        }
-
-        window.location.assign("/login");
-        router.refresh();
-      } catch {
-        setLogoutError("Unable to log out right now. Please try again.");
-      } finally {
-        setIsLoggingOut(false);
+      if (!response.ok) {
+        throw new Error("Unable to log out right now. Please try again.");
       }
+
+      router.replace("/login");
+      router.refresh();
+      window.location.assign("/login");
+    } catch {
+      setLogoutError("Unable to log out right now. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
