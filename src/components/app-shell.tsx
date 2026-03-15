@@ -30,7 +30,7 @@ export function AppShell({
     try {
       window.location.assign("/api/auth/logout");
     } catch {
-      router.replace("/login");
+      router.replace("/");
       router.refresh();
       setIsLoggingOut(false);
     }
