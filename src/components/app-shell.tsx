@@ -20,17 +20,36 @@ export function AppShell({
   const router = useRouter();
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
 
+    setLogoutError(null);
     setIsLoggingOut(true);
+
+    // Prefer server-driven logout navigation; keep router fallback for merge-safe compatibility.
     try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-      router.replace("/login");
-      router.refresh();
-    } finally {
-      setIsLoggingOut(false);
+      window.location.assign("/api/auth/logout");
+      return;
+    } catch {
+      try {
+        const response = await fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to log out right now. Please try again.");
+        }
+
+        router.replace("/login");
+        router.refresh();
+      } catch {
+        setLogoutError("Unable to log out right now. Please try again.");
+        setIsLoggingOut(false);
+      }
     }
   };
 
@@ -90,6 +109,14 @@ export function AppShell({
           </button>
         </div>
       </header>
+
+      {logoutError ? (
+        <div className="mx-auto mt-4 max-w-5xl px-6">
+          <p className="rounded-[var(--r)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[12px] text-red-600">
+            {logoutError}
+          </p>
+        </div>
+      ) : null}
 
       {/* Page content */}
       <main className="max-w-5xl mx-auto px-6 py-8">
