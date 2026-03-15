@@ -30,6 +30,6 @@ export async function POST() {
 }
 
 export async function GET(request: NextRequest) {
-  const loginUrl = new URL("/login", request.url);
-  return clearAuthCookies(NextResponse.redirect(loginUrl));
+  const rootUrl = new URL("/", request.url);
+  return clearAuthCookies(NextResponse.redirect(rootUrl));
 }
