@@ -72,7 +72,8 @@ function CallbackHandler() {
         return;
       }
 
-      router.push("/signup/brand/complete");
+      // Skip the completion form for returning users who already filled it out
+      router.push(result.profileCompleted ? "/dashboard" : "/signup/brand/complete");
     };
 
     handleCallback();

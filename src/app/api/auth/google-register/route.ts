@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
 
     const supabase = createSupabaseServerClient();
 
-    // Upsert: if the user has signed in before, update their record
+    // Upsert: preserve registered_at from the first signup by not including it
+    // in the payload (the column DEFAULT NOW() handles first insert;
+    // on conflict it is absent from the SET clause so it is never overwritten).
     const { data, error } = await supabase
       .from("brand_registrations")
       .upsert(
@@ -59,7 +61,6 @@ export async function POST(request: NextRequest) {
           ip_address: ip,
           device_type: device,
           auth_provider: "google",
-          registered_at: new Date().toISOString(),
           raw_metadata: rawMetadata ?? null,
         },
         { onConflict: "supabase_user_id", ignoreDuplicates: false }
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
       .select("id, profile_completed")
       .single();
 
-    if (error) {
+    if (error || !data) {
       console.error("[google-register] Supabase upsert error:", error);
       return NextResponse.json<AuthResponse>(
         { success: false, error: "Failed to save registration" },
