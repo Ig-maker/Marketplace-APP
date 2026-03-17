@@ -3,6 +3,7 @@
 import { Suspense, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DEFAULT_REDIRECT } from "@/lib/constants";
+import { createSupabaseClient } from "@/lib/supabase";
 
 type Role = "brand" | "ambassador";
 type AmbStep = "phone" | "otp";
@@ -19,16 +20,21 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || DEFAULT_REDIRECT;
+  const googleError = searchParams.get("google_error");
 
-  const [role, setRole] = useState<Role>("ambassador");
+  const [role, setRole] = useState<Role>("brand");
   const [ambStep, setAmbStep] = useState<AmbStep>("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(googleError ? decodeURIComponent(googleError) : "");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [showSignupPrompt, setShowSignupPrompt] = useState(
+    googleError ? googleError.includes("sign up") : false
+  );
 
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const phoneRef = useRef<HTMLInputElement>(null);
@@ -43,6 +49,7 @@ function LoginContent() {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(formatPhone(e.target.value));
     setError("");
+    setShowSignupPrompt(false);
   };
 
   const handleSendOtp = async () => {
@@ -53,6 +60,7 @@ function LoginContent() {
     }
     setLoading(true);
     setError("");
+    setShowSignupPrompt(false);
     try {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
@@ -126,8 +134,16 @@ function LoginContent() {
       setError("Email and password are required");
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     setLoading(true);
     setError("");
+    setShowSignupPrompt(false);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -139,6 +155,9 @@ function LoginContent() {
         router.push(redirectTo);
       } else {
         setError(data.error || "Invalid credentials");
+        if (data.error?.includes("sign up")) {
+          setShowSignupPrompt(true);
+        }
       }
     } catch {
       setError("Network error. Please try again.");
@@ -147,13 +166,40 @@ function LoginContent() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError("");
+    setShowSignupPrompt(false);
+    try {
+      const supabase = createSupabaseClient();
+      const redirectUrl = `${window.location.origin}/auth/callback?mode=login`;
+      const { error: oauthErr } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: "offline",
+            prompt: "select_account",
+          },
+        },
+      });
+      if (oauthErr) {
+        setError("Could not start Google sign-in. Please try again.");
+        setGoogleLoading(false);
+      }
+    } catch {
+      setError("Network error. Please try again.");
+      setGoogleLoading(false);
+    }
+  };
+
   const backToPhone = () => {
     setAmbStep("phone");
     setOtp(["", "", "", "", "", ""]);
     setError("");
+    setShowSignupPrompt(false);
   };
 
-  // Left panel content based on role
   const leftContent = role === "ambassador" ? {
     headline: <>Your next shift<br />is <em className="not-italic text-[var(--lime)]">waiting</em>.</>,
     sub: "CPG brands are posting demos right now. Log in to claim shifts near you, track earnings, and build your reputation.",
@@ -260,7 +306,7 @@ function LoginContent() {
             {(["brand", "ambassador"] as Role[]).map((r) => (
               <button
                 key={r}
-                onClick={() => { setRole(r); setError(""); }}
+                onClick={() => { setRole(r); setError(""); setShowSignupPrompt(false); }}
                 className={`flex-1 py-2.5 px-4 rounded-[10px] text-[13px] font-semibold flex items-center justify-center gap-[7px] border-none cursor-pointer transition-all duration-150 ${
                   role === r
                     ? "bg-[var(--surface)] text-[var(--text)] shadow-[var(--sh)]"
@@ -290,7 +336,17 @@ function LoginContent() {
           {/* Error message */}
           {error && (
             <div className="bg-[rgba(192,57,43,0.08)] border border-[var(--red)]/20 rounded-[var(--r)] px-4 py-3 mb-4 text-[13px] text-[var(--red)]">
-              {error}
+              <span>{error}</span>
+              {showSignupPrompt && (
+                <div className="mt-2">
+                  <a
+                    href="/signup"
+                    className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--dark)] no-underline hover:underline"
+                  >
+                    Sign up for an account &rarr;
+                  </a>
+                </div>
+              )}
             </div>
           )}
 
@@ -306,15 +362,26 @@ function LoginContent() {
 
               <button
                 type="button"
-                className="w-full bg-[var(--surface)] border-[1.5px] border-[var(--border)] rounded-[var(--r)] py-[11px] px-4 font-sans text-[14px] font-semibold text-[var(--text)] cursor-pointer flex items-center justify-center gap-2.5 hover:border-[var(--border2)] hover:shadow-[var(--sh)] hover:-translate-y-px transition-all duration-150 mb-4"
+                onClick={handleGoogleLogin}
+                disabled={googleLoading}
+                className="w-full bg-[var(--surface)] border-[1.5px] border-[var(--border)] rounded-[var(--r)] py-[11px] px-4 font-sans text-[14px] font-semibold text-[var(--text)] cursor-pointer flex items-center justify-center gap-2.5 hover:border-[var(--border2)] hover:shadow-[var(--sh)] hover:-translate-y-px transition-all duration-150 mb-4 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4" />
-                  <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.259c-.806.54-1.837.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853" />
-                  <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
-                  <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335" />
-                </svg>
-                Continue with Google
+                {googleLoading ? (
+                  <>
+                    <div className="w-4 h-4 rounded-full border-2 border-[var(--border)] border-t-[var(--dark)] animate-spin" />
+                    Connecting to Google…
+                  </>
+                ) : (
+                  <>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4" />
+                      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.259c-.806.54-1.837.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853" />
+                      <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
+                      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335" />
+                    </svg>
+                    Continue with Google
+                  </>
+                )}
               </button>
 
               <div className="flex items-center gap-3 my-5">
@@ -332,7 +399,7 @@ function LoginContent() {
                   placeholder="you@brand.com"
                   autoComplete="email"
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); setShowSignupPrompt(false); }}
                   className="w-full bg-[var(--surface)] border-[1.5px] border-[var(--border)] rounded-[var(--r)] py-3 px-3.5 font-sans text-[15px] text-[var(--text)] outline-none focus:border-[var(--dark)] focus:shadow-[0_0_0_3px_rgba(17,17,17,0.07)] transition-all placeholder:text-[var(--text3)]"
                 />
               </div>
@@ -352,7 +419,7 @@ function LoginContent() {
                     placeholder="••••••••"
                     autoComplete="current-password"
                     value={password}
-                    onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                    onChange={(e) => { setPassword(e.target.value); setError(""); setShowSignupPrompt(false); }}
                     className="w-full bg-[var(--surface)] border-[1.5px] border-[var(--border)] rounded-[var(--r)] py-3 px-3.5 font-sans text-[15px] text-[var(--text)] outline-none focus:border-[var(--dark)] focus:shadow-[0_0_0_3px_rgba(17,17,17,0.07)] transition-all placeholder:text-[var(--text3)] pr-10"
                   />
                   <button
