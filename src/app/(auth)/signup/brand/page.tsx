@@ -1,32 +1,70 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { DEFAULT_REDIRECT } from "@/lib/constants";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import Link from "next/link";
+import { createSupabaseClient, createSupabaseEmailClient } from "@/lib/supabase";
 
-export default function BrandSignupPage() {
+
+function BrandSignupContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const oauthError = searchParams.get("error");
+  const oauthDetail = searchParams.get("detail");
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
+  const [brandName, setBrandName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    oauthError === "oauth_failed"
+      ? `Google sign-in failed. Please try again.${oauthDetail ? ` (${oauthDetail})` : ""}`
+      : oauthError === "registration_failed" ? "Could not complete registration. Please try again."
+      : oauthError ? "Sign-in error. Please try again." : ""
+  );
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const pwRef = useRef<HTMLInputElement>(null);
 
-  const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 10);
-    if (digits.length >= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-    if (digits.length >= 3) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-    return digits;
+  const handleGoogleSignup = async () => {
+    setGoogleLoading(true);
+    setError("");
+    try {
+      localStorage.setItem("shelvian_oauth_intent", "signup");
+      const supabase = createSupabaseClient();
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      const { error: oauthErr } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+      if (oauthErr) {
+        setError("Could not start Google sign-in. Please try again.");
+        setGoogleLoading(false);
+      }
+      // If successful, the browser is redirected — no need to setGoogleLoading(false)
+    } catch {
+      setError("Network error. Please try again.");
+      setGoogleLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firstName || !email || !password) {
       setError("First name, email, and password are required");
+      return;
+    }
+    if (!brandName.trim()) {
+      setError("Brand name is required");
       return;
     }
     if (password.length < 8) {
@@ -36,22 +74,65 @@ export default function BrandSignupPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/auth/signup", {
+      const supabase = createSupabaseEmailClient();
+      const fullName = `${firstName} ${lastName}`.trim();
+
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+          data: { first_name: firstName, last_name: lastName, full_name: fullName },
+        },
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      if (!authData.user) {
+        setError("Signup failed. Please try again.");
+        return;
+      }
+
+      // Save brand data server-side while user confirms email
+      await fetch("/api/auth/brand-presave", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: `${firstName} ${lastName}`.trim(),
+          supabaseUserId: authData.user.id,
           email,
-          password,
-          phone: phone ? `+1 ${phone}` : undefined,
-          role: "brand",
+          firstName,
+          lastName,
+          fullName,
+          brandName,
         }),
       });
-      const data = await res.json();
-      if (data.success) {
-        router.push("/onboarding/brand");
+
+      // When Supabase has "Confirm email" disabled, signUp returns a session.
+      // Create Shelvian session and go straight to onboarding.
+      if (authData.session) {
+        const confirmRes = await fetch("/api/auth/email-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            supabaseUserId: authData.user.id,
+            email,
+            fullName,
+            firstName,
+            lastName,
+          }),
+        });
+        const confirmData = await confirmRes.json();
+        if (confirmData.success) {
+          router.push("/onboarding/brand");
+        } else {
+          setError(confirmData.error || "Could not complete signup.");
+          return;
+        }
       } else {
-        setError(data.error || "Signup failed");
+        router.push(`/signup/brand/verify?email=${encodeURIComponent(email)}`);
       }
     } catch {
       setError("Network error. Please try again.");
@@ -61,9 +142,9 @@ export default function BrandSignupPage() {
   };
 
   const checkmarks = [
-    { bold: "No agency overhead", text: " \u2014 pay only for completed shifts" },
-    { bold: "97% fill rate", text: " \u2014 auto-backup fills cancellations in 2 hrs" },
-    { bold: "Live event photos", text: " \u2014 GPS check-in and reports per shift" },
+    { bold: "No agency overhead", text: " — pay only for completed shifts" },
+    { bold: "97% fill rate", text: " — auto-backup fills cancellations in 2 hrs" },
+    { bold: "Live event photos", text: " — GPS check-in and reports per shift" },
   ];
 
   const stats = [
@@ -80,7 +161,7 @@ export default function BrandSignupPage() {
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2L3 6.5 8 11" /></svg>
           Back
         </a>
-        <a href="/" className="flex items-center gap-2 no-underline">
+        <Link href="/" className="flex items-center gap-2 no-underline">
           <svg width="32" height="32" viewBox="0 0 34 34" fill="none">
             <rect width="34" height="34" rx="8" fill="#1A1A14" />
             <line x1="17" y1="8.5" x2="17" y2="25.5" stroke="#CBEC45" strokeWidth="2.3" strokeLinecap="round" />
@@ -89,7 +170,7 @@ export default function BrandSignupPage() {
             <line x1="23" y1="11" x2="11" y2="23" stroke="#CBEC45" strokeWidth="2.3" strokeLinecap="round" />
           </svg>
           <span className="font-serif text-lg text-[#111] tracking-tight">Shelvian</span>
-        </a>
+        </Link>
         <a href="/login" className="text-[13px] text-[var(--muted)] no-underline hover:text-[var(--dark)] transition-colors">Log in</a>
       </nav>
 
@@ -150,7 +231,7 @@ export default function BrandSignupPage() {
 
             {/* Error */}
             {error && (
-              <div className="bg-[rgba(192,57,43,0.08)] border border-[var(--red)]/20 rounded-[var(--r)] px-4 py-3 mb-4 text-[13px] text-[var(--red)]">
+              <div className="bg-[rgba(192,57,43,0.08)] border border-[rgba(192,57,43,0.2)] rounded-[var(--r)] px-4 py-3 mb-4 text-[13px] text-[#C0392B]">
                 {error}
               </div>
             )}
@@ -158,15 +239,26 @@ export default function BrandSignupPage() {
             {/* Google SSO */}
             <button
               type="button"
-              className="w-full py-3 px-3.5 bg-[var(--surface)] text-[var(--dark)] font-sans text-[14px] font-medium border-[1.5px] border-[var(--border)] rounded-[var(--r)] cursor-pointer flex items-center justify-center gap-2.5 hover:border-[var(--border2)] hover:bg-[var(--elevated)] transition-all"
+              onClick={handleGoogleSignup}
+              disabled={googleLoading}
+              className="w-full py-3 px-3.5 bg-[var(--surface)] text-[var(--dark)] font-sans text-[14px] font-medium border-[1.5px] border-[var(--border)] rounded-[var(--r)] cursor-pointer flex items-center justify-center gap-2.5 hover:border-[var(--border2)] hover:bg-[var(--elevated)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
-                <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853" />
-                <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
-                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
-              </svg>
-              Continue with Google
+              {googleLoading ? (
+                <>
+                  <div className="w-4 h-4 rounded-full border-2 border-[var(--border2)] border-t-[var(--dark)] animate-spin" />
+                  Connecting to Google…
+                </>
+              ) : (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
+                    <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853" />
+                    <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
+                    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
+                  </svg>
+                  Continue with Google
+                </>
+              )}
             </button>
 
             {/* Divider */}
@@ -176,7 +268,7 @@ export default function BrandSignupPage() {
               <div className="flex-1 h-px bg-[var(--border)]" />
             </div>
 
-            {/* Form */}
+            {/* Email Form */}
             <form onSubmit={handleSubmit}>
               {/* Name row */}
               <div className="grid grid-cols-2 gap-3 mb-[18px]">
@@ -253,30 +345,28 @@ export default function BrandSignupPage() {
                 </div>
               </div>
 
-              {/* Phone */}
+              {/* Brand name */}
               <div className="mb-[18px]">
-                <label className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text3)] mb-[7px]">
-                  Phone
-                  <span className="text-[10px] font-normal normal-case tracking-normal text-[var(--muted)] italic">Optional</span>
+                <label className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text3)] mb-[7px]">
+                  Brand name
                 </label>
                 <input
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  autoComplete="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(formatPhone(e.target.value))}
+                  type="text"
+                  placeholder="Oatly, Siete Foods…"
+                  autoComplete="organization"
+                  value={brandName}
+                  onChange={(e) => { setBrandName(e.target.value); setError(""); }}
                   className="w-full bg-[var(--elevated)] border-[1.5px] border-[var(--border)] rounded-[var(--r)] py-3 px-3.5 font-sans text-[14px] text-[var(--dark)] outline-none focus:border-[var(--dark)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(17,17,17,0.06)] transition-all placeholder:text-[var(--text3)]"
                 />
-                <div className="text-[11px] text-[var(--muted)] mt-[5px]">For shift alerts only. No spam.</div>
               </div>
 
               {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-[var(--lime)] text-[var(--dark)] font-sans text-[14px] font-bold border-none rounded-[var(--r)] cursor-pointer flex items-center justify-center gap-2 mt-6 hover:bg-[var(--lime-dark)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_var(--lime-glow)] transition-all disabled:opacity-50"
+                className="w-full py-3.5 bg-[var(--lime)] text-[var(--dark)] font-sans text-[14px] font-bold border-none rounded-[var(--r)] cursor-pointer flex items-center justify-center gap-2 mt-6 hover:bg-[var(--lime-dark)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_var(--lime-glow)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Creating account..." : "Create Account"}
+                {loading ? "Sending confirmation…" : "Create Account"}
                 {!loading && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
                 )}
@@ -291,5 +381,17 @@ export default function BrandSignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BrandSignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[var(--off)]">
+        <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-t-[var(--dark)] animate-spin" />
+      </div>
+    }>
+      <BrandSignupContent />
+    </Suspense>
   );
 }

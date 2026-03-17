@@ -16,7 +16,6 @@ export default function BrandOnboardingPage() {
   const [category, setCategory] = useState("");
   const [pitch, setPitch] = useState("");
   const [retailer, setRetailer] = useState("");
-  const [website, setWebsite] = useState("");
 
   // Form state — Step 2
   const [cities, setCities] = useState("");
@@ -24,7 +23,6 @@ export default function BrandOnboardingPage() {
   const [requirements, setRequirements] = useState<string[]>([]);
 
   useEffect(() => {
-    // Get user info from session cookie for display
     const fetchUser = async () => {
       try {
         const res = await fetch("/api/auth/me");
@@ -32,6 +30,10 @@ export default function BrandOnboardingPage() {
           const data = await res.json();
           setUserName(data.user?.name || "");
           setUserEmail(data.user?.email || "");
+          // Pre-fill brand name if it was saved during signup
+          if (data.brandName) {
+            setBrandName(data.brandName);
+          }
         }
       } catch {
         // Silently fail — layout handles auth redirect
@@ -212,16 +214,6 @@ export default function BrandOnboardingPage() {
                       <option>Multiple chains</option>
                     </select>
                   </SelectWrap>
-                </Field>
-
-                <Field label="Website" hint="Optional" noMargin>
-                  <input
-                    type="url"
-                    placeholder="https://yourbrand.com"
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                    className="field-input"
-                  />
                 </Field>
 
                 <button onClick={() => goStep(2)} className="btn-primary mt-[22px]">
