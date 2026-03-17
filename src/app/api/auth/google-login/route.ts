@@ -42,7 +42,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServerClient();
+    let supabase;
+    try {
+      supabase = createSupabaseServerClient();
+    } catch (e) {
+      console.error("[google-login] Failed to create Supabase client:", e);
+      return NextResponse.json<AuthResponse>(
+        { success: false, error: "Service temporarily unavailable. Please try again." },
+        { status: 503 }
+      );
+    }
 
     // 1. Look up by Google supabase_user_id — means Google was already linked
     const { data: byUserId, error: userIdError } = await supabase
@@ -87,6 +96,15 @@ export async function POST(request: NextRequest) {
       console.error("[google-login] Supabase query error (by email):", emailError);
     }
 
+    // If BOTH queries had errors, it's a server issue, not "not found"
+    if (!byUserId && !byEmail && userIdError && emailError) {
+      console.error("[google-login] All Supabase queries failed — likely a configuration issue");
+      return NextResponse.json<AuthResponse>(
+        { success: false, error: "Service temporarily unavailable. Please try again." },
+        { status: 503 }
+      );
+    }
+
     if (!byEmail) {
       return NextResponse.json<AuthResponse>(
         { success: false, error: "No account found with this Google email. Please sign up first." },
@@ -99,7 +117,6 @@ export async function POST(request: NextRequest) {
     const hasGoogle = provider.includes("google");
 
     if (!hasGoogle) {
-      // Email-only account needs password verification before linking
       return NextResponse.json(
         {
           success: false,
