@@ -73,25 +73,25 @@ function CallbackHandler() {
 
         const result = await res.json();
 
-        if (!result.success) {
-          if (result.code === "LINKING_REQUIRED") {
-            localStorage.setItem(LINK_DATA_KEY, JSON.stringify({
-              email: user.email ?? "",
-              googleSupabaseUserId: user.id,
-              fullName,
-              avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || "",
-            }));
-            router.push("/link-account");
-            return;
-          }
-
-          const errorMsg = encodeURIComponent(result.error || "Login failed");
-          router.push(`/login?google_error=${errorMsg}`);
+        if (result.success) {
+          router.push(result.profileCompleted ? "/dashboard" : "/onboarding/brand");
           return;
         }
 
-        router.push(result.profileCompleted ? "/dashboard" : "/onboarding/brand");
-        return;
+        if (result.code === "LINKING_REQUIRED") {
+          localStorage.setItem(LINK_DATA_KEY, JSON.stringify({
+            email: user.email ?? "",
+            googleSupabaseUserId: user.id,
+            fullName,
+            avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || "",
+          }));
+          router.push("/link-account");
+          return;
+        }
+
+        // No brand_registrations entry found — fall through to google-register
+        // to create the account. The user already authenticated with Google,
+        // so this is safe (handles missing presave data and new users).
       }
 
       const res = await fetch("/api/auth/google-register", {
