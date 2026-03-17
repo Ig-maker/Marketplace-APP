@@ -342,7 +342,7 @@ function LoginContent() {
                   <label className="text-[11px] font-semibold uppercase tracking-[0.07em] text-[var(--text3)]">
                     Password
                   </label>
-                  <a href="#" className="text-[12px] text-[var(--text3)] no-underline hover:text-[var(--text)] transition-colors">
+                  <a href="/auth/forgot-password" className="text-[12px] text-[var(--text3)] no-underline hover:text-[var(--text)] transition-colors">
                     Forgot password?
                   </a>
                 </div>
