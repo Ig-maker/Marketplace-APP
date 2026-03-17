@@ -4,6 +4,8 @@ import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseClient } from "@/lib/supabase";
 
+const OAUTH_INTENT_KEY = "shelvian_oauth_intent";
+
 function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,8 +19,10 @@ function CallbackHandler() {
       const code = searchParams.get("code");
       const error = searchParams.get("error");
       const errorDescription = searchParams.get("error_description");
-      const mode = searchParams.get("mode");
-      const isLoginMode = mode === "login";
+
+      const intent = localStorage.getItem(OAUTH_INTENT_KEY);
+      localStorage.removeItem(OAUTH_INTENT_KEY);
+      const isLoginMode = intent === "login";
 
       if (error) {
         console.error("OAuth error:", error, errorDescription);
