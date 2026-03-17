@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
-import { createSupabaseClient } from "@/lib/supabase";
+import { createSupabaseClient, createSupabaseEmailClient } from "@/lib/supabase";
 
 
 function BrandSignupContent() {
@@ -73,25 +73,43 @@ function BrandSignupContent() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/auth/signup", {
+      const supabase = createSupabaseEmailClient();
+      const fullName = `${firstName} ${lastName}`.trim();
+
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+          data: { first_name: firstName, last_name: lastName, full_name: fullName },
+        },
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      if (!authData.user) {
+        setError("Signup failed. Please try again.");
+        return;
+      }
+
+      // Save brand data server-side while user confirms email
+      await fetch("/api/auth/brand-presave", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: `${firstName} ${lastName}`.trim(),
+          supabaseUserId: authData.user.id,
+          email,
           firstName,
           lastName,
-          email,
-          password,
+          fullName,
           brandName,
-          role: "brand",
         }),
       });
-      const data = await res.json();
-      if (data.success) {
-        router.push("/onboarding/brand");
-      } else {
-        setError(data.error || "Signup failed");
-      }
+
+      router.push(`/signup/brand/verify?email=${encodeURIComponent(email)}`);
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -324,7 +342,7 @@ function BrandSignupContent() {
                 disabled={loading}
                 className="w-full py-3.5 bg-[var(--lime)] text-[var(--dark)] font-sans text-[14px] font-bold border-none rounded-[var(--r)] cursor-pointer flex items-center justify-center gap-2 mt-6 hover:bg-[var(--lime-dark)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_var(--lime-glow)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Creating account…" : "Create Account"}
+                {loading ? "Sending confirmation…" : "Create Account"}
                 {!loading && (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
                 )}
