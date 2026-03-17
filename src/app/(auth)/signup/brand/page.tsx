@@ -6,12 +6,6 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { createSupabaseClient } from "@/lib/supabase";
 
-function formatPhone(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
-  if (digits.length >= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  if (digits.length >= 3) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return digits;
-}
 
 function BrandSignupContent() {
   const router = useRouter();
@@ -23,9 +17,7 @@ function BrandSignupContent() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
   const [brandName, setBrandName] = useState("");
-  const [website, setWebsite] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(
     oauthError === "oauth_failed"
@@ -90,9 +82,7 @@ function BrandSignupContent() {
           lastName,
           email,
           password,
-          phone: phone ? `+1 ${phone}` : undefined,
           brandName,
-          companyWebsite: website || undefined,
           role: "brand",
         }),
       });
@@ -326,39 +316,6 @@ function BrandSignupContent() {
                   onChange={(e) => { setBrandName(e.target.value); setError(""); }}
                   className="w-full bg-[var(--elevated)] border-[1.5px] border-[var(--border)] rounded-[var(--r)] py-3 px-3.5 font-sans text-[14px] text-[var(--dark)] outline-none focus:border-[var(--dark)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(17,17,17,0.06)] transition-all placeholder:text-[var(--text3)]"
                 />
-              </div>
-
-              {/* Website */}
-              <div className="mb-[18px]">
-                <label className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text3)] mb-[7px]">
-                  Company website
-                  <span className="text-[10px] font-normal normal-case tracking-normal text-[var(--muted)] italic">Optional</span>
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://yourbrand.com"
-                  autoComplete="url"
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                  className="w-full bg-[var(--elevated)] border-[1.5px] border-[var(--border)] rounded-[var(--r)] py-3 px-3.5 font-sans text-[14px] text-[var(--dark)] outline-none focus:border-[var(--dark)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(17,17,17,0.06)] transition-all placeholder:text-[var(--text3)]"
-                />
-              </div>
-
-              {/* Phone */}
-              <div className="mb-[18px]">
-                <label className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text3)] mb-[7px]">
-                  Phone
-                  <span className="text-[10px] font-normal normal-case tracking-normal text-[var(--muted)] italic">Optional</span>
-                </label>
-                <input
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  autoComplete="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(formatPhone(e.target.value))}
-                  className="w-full bg-[var(--elevated)] border-[1.5px] border-[var(--border)] rounded-[var(--r)] py-3 px-3.5 font-sans text-[14px] text-[var(--dark)] outline-none focus:border-[var(--dark)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(17,17,17,0.06)] transition-all placeholder:text-[var(--text3)]"
-                />
-                <div className="text-[11px] text-[var(--muted)] mt-[5px]">For shift alerts only. No spam.</div>
               </div>
 
               {/* Submit */}
