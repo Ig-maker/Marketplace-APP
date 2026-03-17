@@ -33,6 +33,7 @@ function BrandSignupContent() {
     setGoogleLoading(true);
     setError("");
     try {
+      localStorage.setItem("shelvian_oauth_intent", "signup");
       const supabase = createSupabaseClient();
       const redirectTo = `${window.location.origin}/auth/callback`;
       const { error: oauthErr } = await supabase.auth.signInWithOAuth({

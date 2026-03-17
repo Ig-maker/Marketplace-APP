@@ -171,8 +171,9 @@ function LoginContent() {
     setError("");
     setShowSignupPrompt(false);
     try {
+      localStorage.setItem("shelvian_oauth_intent", "login");
       const supabase = createSupabaseClient();
-      const redirectUrl = `${window.location.origin}/auth/callback?mode=login`;
+      const redirectUrl = `${window.location.origin}/auth/callback`;
       const { error: oauthErr } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
