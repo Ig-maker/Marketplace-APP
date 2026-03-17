@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { DEFAULT_REDIRECT } from "@/lib/constants";
 import { createSupabaseClient } from "@/lib/supabase";
 
@@ -340,12 +341,12 @@ function LoginContent() {
               <span>{error}</span>
               {showSignupPrompt && (
                 <div className="mt-2">
-                  <a
+                  <Link
                     href="/signup/brand"
                     className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--dark)] no-underline hover:underline"
                   >
                     Sign up for an account &rarr;
-                  </a>
+                  </Link>
                 </div>
               )}
             </div>
