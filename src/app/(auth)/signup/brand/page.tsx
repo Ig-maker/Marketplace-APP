@@ -17,6 +17,7 @@ function BrandSignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const oauthError = searchParams.get("error");
+  const oauthDetail = searchParams.get("detail");
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -27,9 +28,10 @@ function BrandSignupContent() {
   const [website, setWebsite] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(
-    oauthError === "oauth_failed" ? "Google sign-in failed. Please try again." :
-    oauthError === "registration_failed" ? "Could not complete registration. Please try again." :
-    oauthError ? "Sign-in error. Please try again." : ""
+    oauthError === "oauth_failed"
+      ? `Google sign-in failed. Please try again.${oauthDetail ? ` (${oauthDetail})` : ""}`
+      : oauthError === "registration_failed" ? "Could not complete registration. Please try again."
+      : oauthError ? "Sign-in error. Please try again." : ""
   );
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
