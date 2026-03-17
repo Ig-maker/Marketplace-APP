@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
             <span className="font-serif text-xl text-white tracking-tight">Shelvian</span>
           </Link>
           <a href="https://shelvian.co" className="text-[13px] font-medium text-white/40 no-underline hover:text-white/80 transition-colors">
-            Back to site &rarr;
+            &larr; Back to site
           </a>
         </div>
 
@@ -138,8 +138,8 @@ export default function ForgotPasswordPage() {
                 href="/login"
                 className="w-full bg-[var(--dark)] text-white border-none rounded-[var(--r)] py-[13px] px-5 font-sans text-[15px] font-bold cursor-pointer flex items-center justify-center gap-2 no-underline hover:bg-[#222] hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-all"
               >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 7H3M7 3l-4 4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 Back to Login
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </Link>
 
               <p className="text-[12px] text-[var(--text3)] mt-5 leading-relaxed">
