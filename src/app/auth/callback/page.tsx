@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseClient } from "@/lib/supabase";
 
 const OAUTH_INTENT_KEY = "shelvian_oauth_intent";
+const LINK_DATA_KEY = "shelvian_link_data";
 
 function CallbackHandler() {
   const router = useRouter();
@@ -73,6 +74,17 @@ function CallbackHandler() {
         const result = await res.json();
 
         if (!result.success) {
+          if (result.code === "LINKING_REQUIRED") {
+            localStorage.setItem(LINK_DATA_KEY, JSON.stringify({
+              email: user.email ?? "",
+              googleSupabaseUserId: user.id,
+              fullName,
+              avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || "",
+            }));
+            router.push("/link-account");
+            return;
+          }
+
           const errorMsg = encodeURIComponent(result.error || "Login failed");
           router.push(`/login?google_error=${errorMsg}`);
           return;
