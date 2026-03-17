@@ -57,11 +57,15 @@ export async function POST(request: NextRequest) {
 
     if (authError || !authData.user) {
       const supabaseServer = createSupabaseServerClient();
-      const { data: registration } = await supabaseServer
+      const { data: registration, error: regError } = await supabaseServer
         .from("brand_registrations")
         .select("id")
-        .eq("email", email)
+        .ilike("email", email)
         .maybeSingle();
+
+      if (regError) {
+        console.error("[login] Supabase registration lookup error:", regError);
+      }
 
       if (!registration) {
         return NextResponse.json<AuthResponse>(
@@ -80,7 +84,7 @@ export async function POST(request: NextRequest) {
     const { data: registration } = await supabaseServer
       .from("brand_registrations")
       .select("id, full_name, brand_name")
-      .eq("email", email)
+      .ilike("email", email)
       .maybeSingle();
 
     const userName =
