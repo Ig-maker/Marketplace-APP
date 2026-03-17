@@ -34,8 +34,9 @@ function CallbackHandler() {
       const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
       if (exchangeError || !data.session) {
-        console.error("Session exchange error:", exchangeError);
-        router.push("/signup/brand?error=oauth_failed");
+        const detail = exchangeError?.message ?? "no_session";
+        console.error("Session exchange error:", detail, exchangeError);
+        router.push(`/signup/brand?error=oauth_failed&detail=${encodeURIComponent(detail)}`);
         return;
       }
 
