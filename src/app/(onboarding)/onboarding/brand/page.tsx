@@ -10,6 +10,8 @@ export default function BrandOnboardingPage() {
   const [step, setStep] = useState<Step>(1);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   // Form state — Step 1
   const [brandName, setBrandName] = useState("");
@@ -54,15 +56,73 @@ export default function BrandOnboardingPage() {
     );
   };
 
-  const goStep = (n: Step) => {
+  const saveBrandProfile = async () => {
+    setSaving(true);
+    setSaveError("");
+    try {
+      const res = await fetch("/api/auth/onboarding-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brandName,
+          category,
+          pitch,
+          retailer,
+          profileCompleted: false,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setSaveError(data.error || "Failed to save. Please try again.");
+        return false;
+      }
+      return true;
+    } catch {
+      setSaveError("Network error. Please try again.");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const goStep = async (n: Step) => {
+    if (n === 2 && step === 1) {
+      const ok = await saveBrandProfile();
+      if (!ok) return;
+    }
     setStep(n);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const goSuccess = () => {
-    // TODO: Save onboarding data to backend
-    setStep("success");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const goSuccess = async () => {
+    setSaving(true);
+    setSaveError("");
+    try {
+      const res = await fetch("/api/auth/onboarding-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brandName,
+          category,
+          pitch,
+          retailer,
+          cities,
+          budget,
+          ambassadorRequirements: requirements,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStep("success");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        setSaveError(data.error || "Failed to save. Please try again.");
+      }
+    } catch {
+      setSaveError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const goToDashboard = () => {
@@ -216,9 +276,18 @@ export default function BrandOnboardingPage() {
                   </SelectWrap>
                 </Field>
 
-                <button onClick={() => goStep(2)} className="btn-primary mt-[22px]">
-                  Save & Continue
-                  <ArrowIcon />
+                {saveError && (
+                  <div className="bg-[rgba(192,57,43,0.08)] border border-[rgba(192,57,43,0.2)] rounded-[var(--r)] px-4 py-3 mb-4 text-[13px] text-[#C0392B]">
+                    {saveError}
+                  </div>
+                )}
+                <button
+                  onClick={() => goStep(2)}
+                  disabled={saving}
+                  className="btn-primary mt-[22px] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {saving ? "Saving…" : "Save & Continue"}
+                  {!saving && <ArrowIcon />}
                 </button>
               </div>
             )}
@@ -319,19 +388,29 @@ export default function BrandOnboardingPage() {
                   </div>
                 </div>
 
-                <button onClick={goSuccess} className="btn-primary mt-[22px]">
-                  Finish Setup
-                  <ArrowIcon />
+                {saveError && (
+                  <div className="bg-[rgba(192,57,43,0.08)] border border-[rgba(192,57,43,0.2)] rounded-[var(--r)] px-4 py-3 mb-4 text-[13px] text-[#C0392B]">
+                    {saveError}
+                  </div>
+                )}
+                <button
+                  onClick={goSuccess}
+                  disabled={saving}
+                  className="btn-primary mt-[22px] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {saving ? "Saving…" : "Finish Setup"}
+                  {!saving && <ArrowIcon />}
                 </button>
                 <button
                   onClick={() => goStep(1)}
-                  className="w-full py-[11px] bg-transparent text-[var(--muted)] font-sans text-[13px] font-medium border-[1.5px] border-[var(--border)] rounded-[var(--r)] cursor-pointer mt-2 hover:border-[var(--border2)] hover:text-[var(--dark)] transition-all"
+                  disabled={saving}
+                  className="w-full py-[11px] bg-transparent text-[var(--muted)] font-sans text-[13px] font-medium border-[1.5px] border-[var(--border)] rounded-[var(--r)] cursor-pointer mt-2 hover:border-[var(--border2)] hover:text-[var(--dark)] transition-all disabled:opacity-60"
                 >
                   ← Back to brand profile
                 </button>
                 <span
-                  onClick={goSuccess}
-                  className="block text-center mt-[13px] text-[12px] text-[var(--muted)] cursor-pointer hover:text-[var(--dark)] hover:underline"
+                  onClick={saving ? undefined : goSuccess}
+                  className={`block text-center mt-[13px] text-[12px] text-[var(--muted)] ${saving ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:text-[var(--dark)] hover:underline"}`}
                 >
                   Skip for now — I&apos;ll set preferences later
                 </span>
