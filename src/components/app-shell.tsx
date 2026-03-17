@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import type { User } from "@/types/auth";
 
 const NAV_ITEMS = [
@@ -17,15 +17,26 @@ export function AppShell({
   user: User;
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (isLoggingOut) return;
+
     setIsLoggingOut(true);
-    // Full-page navigation to the GET logout route.
-    // The server clears the session cookie and redirects to /.
-    window.location.href = "/api/auth/logout";
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+      });
+    } finally {
+      router.replace("/login");
+      router.refresh();
+      window.location.assign("/login");
+      setIsLoggingOut(false);
+    }
   };
 
   return (

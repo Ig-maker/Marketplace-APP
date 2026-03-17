@@ -110,7 +110,30 @@ function BrandSignupContent() {
         }),
       });
 
-      router.push(`/signup/brand/verify?email=${encodeURIComponent(email)}`);
+      // When Supabase has "Confirm email" disabled, signUp returns a session.
+      // Create Shelvian session and go straight to onboarding.
+      if (authData.session) {
+        const confirmRes = await fetch("/api/auth/email-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            supabaseUserId: authData.user.id,
+            email,
+            fullName,
+            firstName,
+            lastName,
+          }),
+        });
+        const confirmData = await confirmRes.json();
+        if (confirmData.success) {
+          router.push("/onboarding/brand");
+        } else {
+          setError(confirmData.error || "Could not complete signup.");
+          return;
+        }
+      } else {
+        router.push(`/signup/brand/verify?email=${encodeURIComponent(email)}`);
+      }
     } catch {
       setError("Network error. Please try again.");
     } finally {
