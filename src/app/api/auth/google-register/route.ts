@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSession } from "@/lib/session";
+import { notifySignup } from "@/lib/notify-signup";
 import type { AuthResponse } from "@/types/auth";
 
 interface GoogleRegisterBody {
@@ -92,6 +93,13 @@ export async function POST(request: NextRequest) {
       name: fullName || email,
       role: "brand",
       avatarUrl: avatarUrl || undefined,
+    });
+
+    void notifySignup({
+      email,
+      fullName: fullName || undefined,
+      role: "brand",
+      authProvider: "google",
     });
 
     return NextResponse.json<AuthResponse & { registrationId: string; profileCompleted: boolean }>({
