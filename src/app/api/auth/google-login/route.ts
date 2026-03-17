@@ -44,11 +44,33 @@ export async function POST(request: NextRequest) {
 
     const supabase = createSupabaseServerClient();
 
-    const { data: registration } = await supabase
+    // Try finding the user by supabase_user_id first (most reliable for Google users)
+    const { data: byUserId, error: userIdError } = await supabase
       .from("brand_registrations")
       .select("id, full_name, profile_completed")
-      .eq("email", email)
+      .eq("supabase_user_id", supabaseUserId)
       .maybeSingle();
+
+    if (userIdError) {
+      console.error("[google-login] Supabase query error (by user_id):", userIdError);
+    }
+
+    let registration = byUserId;
+
+    // Fall back to case-insensitive email lookup
+    if (!registration) {
+      const { data: byEmail, error: emailError } = await supabase
+        .from("brand_registrations")
+        .select("id, full_name, profile_completed")
+        .ilike("email", email)
+        .maybeSingle();
+
+      if (emailError) {
+        console.error("[google-login] Supabase query error (by email):", emailError);
+      }
+
+      registration = byEmail;
+    }
 
     if (!registration) {
       return NextResponse.json<AuthResponse>(
