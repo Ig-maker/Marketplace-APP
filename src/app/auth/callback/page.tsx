@@ -52,12 +52,20 @@ function CallbackHandler() {
       const user = data.session.user;
       const meta = user.user_metadata ?? {};
 
-      const firstName = (meta.given_name as string) || "";
-      const lastName = (meta.family_name as string) || "";
+      // Google OAuth may use given_name/family_name (OIDC) or givenName/familyName (camelCase)
+      let firstName = (meta.given_name as string) || (meta.givenName as string) || "";
+      let lastName = (meta.family_name as string) || (meta.familyName as string) || "";
       const fullName =
         (meta.full_name as string) ||
         (meta.name as string) ||
         `${firstName} ${lastName}`.trim();
+
+      // Fallback: parse first/last from fullName when Google doesn't provide them
+      if ((!firstName || !lastName) && fullName) {
+        const parts = fullName.trim().split(/\s+/);
+        if (parts.length >= 1 && !firstName) firstName = parts[0];
+        if (parts.length >= 2 && !lastName) lastName = parts.slice(1).join(" ");
+      }
 
       if (isLoginMode) {
         const res = await fetch("/api/auth/google-login", {
