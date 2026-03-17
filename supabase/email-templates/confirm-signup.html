@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+  <title>Confirm your Shelvian account</title>
+  <style>
+    * { box-sizing: border-box; }
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    body { margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #F5F5F0; }
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;600;700&display=swap');
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#F5F5F0;">
+
+<!-- Preheader (hidden preview text — includes token so Gmail sees each send as unique) -->
+<div style="display:none; max-height:0; overflow:hidden; mso-hide:all; font-size:1px; color:#F5F5F0;">
+  Confirm your Shelvian account. This link is unique to your sign-up request.&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+</div>
+
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:#F5F5F0;">
+  <tr>
+    <td align="center" style="padding: 40px 16px;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:520px;">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="background-color:#111111; padding: 22px 36px; border-radius: 14px 14px 0 0;">
+            <span style="font-family:'DM Serif Display',Georgia,serif; font-size:20px; color:#ffffff;">Shelvian<span style="color:#CBEC45;">.</span></span>
+          </td>
+        </tr>
+
+        <!-- BODY -->
+        <tr>
+          <td style="background-color:#ffffff; border-left:1px solid #E2E2DC; border-right:1px solid #E2E2DC; padding: 40px 36px 36px;">
+
+            <h1 style="font-family:'DM Serif Display',Georgia,serif; font-size:28px; font-weight:400; color:#111111; letter-spacing:-0.02em; line-height:1.2; margin:0 0 14px;">
+              Confirm your <em style="font-style:italic; text-decoration:underline; text-decoration-color:#CBEC45; text-underline-offset:4px;">email address</em>.
+            </h1>
+
+            <p style="font-family:'DM Sans',Arial,sans-serif; font-size:15px; color:#5A5A54; line-height:1.7; margin:0 0 32px;">
+              Hi <strong style="color:#111111;">{{ .Data.first_name }}</strong>, thanks for signing up. Click the button below to verify your email and activate your Shelvian account.
+            </p>
+
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td align="center">
+                  <a href="{{ .ConfirmationURL }}" target="_blank"
+                    style="display:inline-block; font-family:'DM Sans',Arial,sans-serif; font-size:15px; font-weight:700; color:#111111; background-color:#CBEC45; text-decoration:none; padding:14px 40px; border-radius:8px; letter-spacing:-0.01em;">
+                    Confirm My Email →
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <p style="font-family:'DM Sans',Arial,sans-serif; font-size:12px; color:#999994; text-align:center; margin:20px 0 0; line-height:1.6;">
+              This link expires in <strong style="color:#5A5A54;">24 hours</strong>. If you didn't create an account, you can ignore this email.
+            </p>
+
+            <!-- Unique reference per send — prevents Gmail threading from collapsing repeated emails -->
+            <p style="font-family:'DM Mono',Menlo,Monaco,'Courier New',monospace; font-size:10px; color:#E8E8E4; text-align:center; margin:16px 0 0; letter-spacing:0.05em;">
+              REF {{ .Token }}
+            </p>
+
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="background-color:#F0F0EB; border:1px solid #E2E2DC; border-top:none; border-radius:0 0 14px 14px; padding:20px 36px; text-align:center;">
+            <p style="font-family:'DM Sans',Arial,sans-serif; font-size:12px; color:#999994; margin:0 0 6px; line-height:1.6;">
+              Questions? <a href="mailto:brands@shelvian.com" style="color:#5A5A54; text-decoration:underline;">brands@shelvian.com</a>
+            </p>
+            <p style="font-family:'DM Sans',Arial,sans-serif; font-size:11px; color:#BBBBBA; margin:0; line-height:1.5;">
+              © 2026 Shelvian, Inc. · <a href="#" style="color:#BBBBBA; text-decoration:underline;">Unsubscribe</a>
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>
