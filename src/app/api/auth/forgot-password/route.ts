@@ -19,6 +19,22 @@ function getIpAddress(request: NextRequest): string {
   );
 }
 
+function resolveOrigin(request: NextRequest): string {
+  const candidates = [
+    request.headers.get("origin"),
+    process.env.NEXT_PUBLIC_APP_URL,
+  ];
+
+  for (const raw of candidates) {
+    if (!raw) continue;
+    const trimmed = raw.trim();
+    if (/^https?:\/\//.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  }
+
+  return "http://localhost:3000";
+}
+
 export async function POST(request: NextRequest) {
   try {
     const ip = getIpAddress(request);
@@ -47,10 +63,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const origin =
-      request.headers.get("origin") ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "http://localhost:3000";
+    const origin = resolveOrigin(request);
 
     const supabase = createSupabaseEmailClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {

@@ -26,6 +26,17 @@ function getPasswordStrength(pw: string): {
   return { score, label: "Strong", color: "#27AE60" };
 }
 
+function parseHashParams(hash: string): Record<string, string> {
+  const params: Record<string, string> = {};
+  const raw = hash.startsWith("#") ? hash.slice(1) : hash;
+  if (!raw) return params;
+  for (const pair of raw.split("&")) {
+    const [key, ...rest] = pair.split("=");
+    if (key) params[decodeURIComponent(key)] = decodeURIComponent(rest.join("="));
+  }
+  return params;
+}
+
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const tokenHash = searchParams.get("token_hash");
@@ -36,9 +47,7 @@ function ResetPasswordContent() {
     supabaseRef.current = createSupabaseEmailClient();
   }
 
-  const [pageState, setPageState] = useState<PageState>(
-    tokenHash && type === "recovery" ? "loading" : "error"
-  );
+  const [pageState, setPageState] = useState<PageState>("loading");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,34 +59,63 @@ function ResetPasswordContent() {
   const strength = useMemo(() => getPasswordStrength(password), [password]);
 
   useEffect(() => {
-    if (!tokenHash || type !== "recovery") {
-      setTokenError("Invalid or missing reset link. Please request a new one.");
-      setPageState("error");
-      return;
-    }
+    const supabase = supabaseRef.current!;
 
-    const verifyToken = async () => {
-      const supabase = supabaseRef.current!;
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        token_hash: tokenHash,
-        type: "recovery",
-      });
+    const establish = async () => {
+      // Strategy 1: hash fragment tokens from Supabase implicit redirect
+      // URL looks like /reset-password#access_token=xxx&refresh_token=xxx&type=recovery
+      const hash = window.location.hash;
+      if (hash) {
+        const hp = parseHashParams(hash);
+        if (hp.access_token && hp.refresh_token) {
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: hp.access_token,
+            refresh_token: hp.refresh_token,
+          });
 
-      if (verifyError) {
-        console.error("[reset-password] Token verification failed:", verifyError.message);
-        setTokenError(
-          verifyError.message.includes("expired")
-            ? "This reset link has expired. Please request a new one."
-            : "This reset link is invalid or has already been used. Please request a new one."
-        );
-        setPageState("error");
+          // Clear the hash to avoid leaking tokens in the URL
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+
+          if (sessionError) {
+            console.error("[reset-password] setSession failed:", sessionError.message);
+            setTokenError("This reset link is invalid or has expired. Please request a new one.");
+            setPageState("error");
+            return;
+          }
+
+          setPageState("form");
+          return;
+        }
+      }
+
+      // Strategy 2: token_hash query param (Supabase email template with direct link)
+      if (tokenHash && type === "recovery") {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: "recovery",
+        });
+
+        if (verifyError) {
+          console.error("[reset-password] verifyOtp failed:", verifyError.message);
+          setTokenError(
+            verifyError.message.includes("expired")
+              ? "This reset link has expired. Please request a new one."
+              : "This reset link is invalid or has already been used. Please request a new one."
+          );
+          setPageState("error");
+          return;
+        }
+
+        setPageState("form");
         return;
       }
 
-      setPageState("form");
+      // No valid tokens found
+      setTokenError("Invalid or missing reset link. Please request a new one.");
+      setPageState("error");
     };
 
-    verifyToken();
+    establish();
   }, [tokenHash, type]);
 
   const handleSubmit = async (e: React.FormEvent) => {
