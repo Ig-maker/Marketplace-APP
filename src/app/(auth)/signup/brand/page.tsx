@@ -96,6 +96,11 @@ function BrandSignupContent() {
         return;
       }
 
+      if (!authData.user.identities || authData.user.identities.length === 0) {
+        setError("An account with this email already exists. Try logging in instead.");
+        return;
+      }
+
       // Save brand data server-side while user confirms email
       await fetch("/api/auth/brand-presave", {
         method: "POST",
