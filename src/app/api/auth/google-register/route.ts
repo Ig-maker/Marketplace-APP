@@ -32,7 +32,16 @@ function getIpAddress(request: NextRequest): string {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as GoogleRegisterBody;
-    const { supabaseUserId, email, fullName, firstName, lastName, avatarUrl, rawMetadata } = body;
+    const { supabaseUserId, email, fullName, avatarUrl, rawMetadata } = body;
+    let firstName = body.firstName ?? "";
+    let lastName = body.lastName ?? "";
+
+    // Fallback: derive first_name/last_name from fullName when Google doesn't provide them
+    if ((!firstName || !lastName) && fullName) {
+      const parts = fullName.trim().split(/\s+/);
+      if (parts.length >= 1 && !firstName) firstName = parts[0];
+      if (parts.length >= 2 && !lastName) lastName = parts.slice(1).join(" ");
+    }
 
     if (!supabaseUserId || !email) {
       return NextResponse.json<AuthResponse>(
