@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSession } from "@/lib/session";
+import { notifySignup } from "@/lib/notify-signup";
 import type { AuthResponse } from "@/types/auth";
 
 interface EmailConfirmBody {
@@ -64,6 +65,13 @@ export async function POST(request: NextRequest) {
       email,
       name: fullName || email,
       role: "brand",
+    });
+
+    void notifySignup({
+      email,
+      fullName: fullName || undefined,
+      role: "brand",
+      authProvider: "email",
     });
 
     return NextResponse.json<AuthResponse & { profileCompleted: boolean }>({

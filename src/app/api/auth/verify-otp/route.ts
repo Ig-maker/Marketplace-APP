@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSession } from "@/lib/session";
+import { notifySignup } from "@/lib/notify-signup";
 import { checkRateLimit, OTP_RATE_LIMIT } from "@/lib/rate-limit";
 import type { OtpVerifyRequest, AuthResponse } from "@/types/auth";
 
@@ -55,6 +56,13 @@ export async function POST(request: NextRequest) {
     };
 
     await createSession(user);
+
+    void notifySignup({
+      email: "",
+      role: "ambassador",
+      authProvider: "email",
+      phone,
+    });
 
     return NextResponse.json<AuthResponse>({ success: true, user });
   } catch {
