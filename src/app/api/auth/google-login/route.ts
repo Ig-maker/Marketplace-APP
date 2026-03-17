@@ -44,10 +44,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = createSupabaseServerClient();
 
-    // Try finding the user by supabase_user_id first (most reliable for Google users)
+    // 1. Look up by Google supabase_user_id — means Google was already linked
     const { data: byUserId, error: userIdError } = await supabase
       .from("brand_registrations")
-      .select("id, full_name, profile_completed")
+      .select("id, full_name, profile_completed, auth_provider")
       .eq("supabase_user_id", supabaseUserId)
       .maybeSingle();
 
@@ -55,34 +55,66 @@ export async function POST(request: NextRequest) {
       console.error("[google-login] Supabase query error (by user_id):", userIdError);
     }
 
-    let registration = byUserId;
+    if (byUserId) {
+      await createSession({
+        id: byUserId.id,
+        email,
+        name: byUserId.full_name || fullName || email,
+        role: "brand",
+        avatarUrl: avatarUrl || undefined,
+      });
 
-    // Fall back to case-insensitive email lookup
-    if (!registration) {
-      const { data: byEmail, error: emailError } = await supabase
-        .from("brand_registrations")
-        .select("id, full_name, profile_completed")
-        .ilike("email", email)
-        .maybeSingle();
-
-      if (emailError) {
-        console.error("[google-login] Supabase query error (by email):", emailError);
-      }
-
-      registration = byEmail;
+      return NextResponse.json<AuthResponse & { profileCompleted: boolean }>({
+        success: true,
+        user: {
+          id: byUserId.id,
+          email,
+          name: byUserId.full_name || fullName || email,
+          role: "brand",
+        },
+        profileCompleted: byUserId.profile_completed ?? false,
+      });
     }
 
-    if (!registration) {
+    // 2. Fall back to case-insensitive email lookup
+    const { data: byEmail, error: emailError } = await supabase
+      .from("brand_registrations")
+      .select("id, full_name, profile_completed, auth_provider")
+      .ilike("email", email)
+      .maybeSingle();
+
+    if (emailError) {
+      console.error("[google-login] Supabase query error (by email):", emailError);
+    }
+
+    if (!byEmail) {
       return NextResponse.json<AuthResponse>(
         { success: false, error: "No account found with this Google email. Please sign up first." },
         { status: 401 }
       );
     }
 
+    // 3. Account exists — check if Google is already an auth provider
+    const provider = byEmail.auth_provider || "";
+    const hasGoogle = provider.includes("google");
+
+    if (!hasGoogle) {
+      // Email-only account needs password verification before linking
+      return NextResponse.json(
+        {
+          success: false,
+          code: "LINKING_REQUIRED",
+          error: "An account with this email already exists. Please verify your identity to link Google.",
+        },
+        { status: 409 }
+      );
+    }
+
+    // Google is already a provider — log in
     await createSession({
-      id: registration.id,
+      id: byEmail.id,
       email,
-      name: registration.full_name || fullName || email,
+      name: byEmail.full_name || fullName || email,
       role: "brand",
       avatarUrl: avatarUrl || undefined,
     });
@@ -90,12 +122,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json<AuthResponse & { profileCompleted: boolean }>({
       success: true,
       user: {
-        id: registration.id,
+        id: byEmail.id,
         email,
-        name: registration.full_name || fullName || email,
+        name: byEmail.full_name || fullName || email,
         role: "brand",
       },
-      profileCompleted: registration.profile_completed ?? false,
+      profileCompleted: byEmail.profile_completed ?? false,
     });
   } catch (err) {
     console.error("[google-login] Unexpected error:", err);
