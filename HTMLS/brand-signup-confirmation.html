@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shelvian — Application Received</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --off:      #F5F5F0;
+  --surface:  #FFFFFF;
+  --elevated: #F0F0EB;
+  --dark:     #111111;
+  --border:   #E2E2DC;
+  --border2:  #CCCCC6;
+  --text:     #111111;
+  --text2:    #5A5A54;
+  --text3:    #999994;
+  --muted:    #888880;
+  --lime:     #CBEC45;
+  --lime-dark:#B5D93A;
+  --lime-glow:rgba(203,236,69,0.22);
+  --green:    #18A664;
+  --green-bg: rgba(24,166,100,0.10);
+  --amber:    #D97706;
+  --amber-bg: rgba(217,119,6,0.08);
+  --sh:    0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  --sh-md: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --sh-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --r:    8px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --f-head: 'DM Serif Display', serif;
+  --f-body: 'DM Sans', sans-serif;
+  --f-mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--f-body);
+  color: var(--text);
+  background: var(--off);
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: .025; pointer-events: none; z-index: 0;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 68px;
+  background: rgba(245,245,240,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+}
+.nav-inner {
+  max-width: 1400px; margin: 0 auto; padding: 0 64px; height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-family: var(--f-head); font-size: 22px; font-weight: 400; color: #111111; text-decoration: none; }
+.nav-support { font-size: 13px; color: var(--muted); }
+.nav-support a { color: var(--text2); text-decoration: none; font-weight: 500; }
+.nav-support a:hover { color: var(--dark); }
+
+/* MAIN */
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 24px 64px;
+  position: relative;
+  z-index: 1;
+}
+
+/* CONFIRMATION CARD */
+.confirm-wrap {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Icon circle */
+.confirm-icon {
+  width: 72px;
+  height: 72px;
+  background: var(--lime);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  box-shadow: 0 0 0 8px rgba(203,236,69,0.15), 0 0 0 16px rgba(203,236,69,0.07);
+  animation: icon-pop 0.5s var(--ease) both;
+}
+@keyframes icon-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.confirm-icon svg {
+  width: 32px; height: 32px;
+}
+
+/* Status tag */
+.status-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--amber); background: var(--amber-bg);
+  border: 1px solid rgba(217,119,6,0.2);
+  border-radius: var(--r-pill); padding: 4px 12px;
+  margin-bottom: 20px;
+  animation: fade-up 0.4s var(--ease) 0.1s both;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--amber);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* Headline */
+.confirm-h1 {
+  font-family: var(--f-head);
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--dark);
+  margin-bottom: 16px;
+  animation: fade-up 0.4s var(--ease) 0.15s both;
+}
+.confirm-h1 em {
+  font-style: italic;
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 5px;
+}
+
+/* Body text */
+.confirm-body {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 440px;
+  margin: 0 auto 32px;
+  animation: fade-up 0.4s var(--ease) 0.2s both;
+}
+
+/* Steps timeline */
+.steps-card {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  text-align: left;
+  animation: fade-up 0.4s var(--ease) 0.25s both;
+}
+.steps-title {
+  font-size: 10px;
+  font-family: var(--f-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  margin-bottom: 18px;
+}
+.step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0;
+  position: relative;
+}
+.step-row:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 38px;
+  width: 1px;
+  height: calc(100% - 10px);
+  background: var(--border);
+}
+.step-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-head); font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-dot.done  { background: var(--lime); color: var(--dark); border: 2px solid var(--lime-dark); }
+.step-dot.pend  { background: var(--amber-bg); color: var(--amber); border: 2px solid rgba(217,119,6,0.25); }
+.step-dot.dim   { background: var(--elevated); color: var(--text3); border: 2px solid var(--border); }
+.step-info {}
+.step-label {
+  font-size: 13px; font-weight: 600; color: var(--dark); line-height: 1.3;
+}
+.step-label.dim { color: var(--text3); font-weight: 500; }
+.step-sub {
+  font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4;
+}
+
+/* Divider */
+.divider {
+  width: 100%; height: 1px;
+  background: var(--border);
+  margin: 4px 0 28px;
+  animation: fade-up 0.4s var(--ease) 0.3s both;
+}
+
+/* CTA Button */
+.btn-cta {
+  font-family: var(--f-body);
+  font-size: 15px; font-weight: 600;
+  color: #111; background: var(--lime);
+  border: none; cursor: pointer;
+  padding: 15px 32px;
+  border-radius: var(--r);
+  transition: all 180ms var(--ease);
+  display: inline-flex; align-items: center; gap: 8px;
+  text-decoration: none;
+  width: 100%;
+  justify-content: center;
+  animation: fade-up 0.4s var(--ease) 0.35s both;
+}
+.btn-cta:hover {
+  background: var(--lime-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--lime-glow);
+}
+.btn-cta svg { width: 16px; height: 16px; }
+
+/* Secondary note */
+.confirm-note {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text3);
+  line-height: 1.6;
+  animation: fade-up 0.4s var(--ease) 0.4s both;
+}
+.confirm-note a {
+  color: var(--text2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@keyframes fade-up {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* FOOTER */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 20px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-logo { font-family: var(--f-head); font-size: 16px; color: var(--dark); }
+.footer-copy { font-size: 12px; color: var(--text3); }
+
+/* MOBILE */
+@media (max-width: 640px) {
+  .nav-inner { padding: 0 20px; }
+  main { padding: 100px 20px 48px; }
+  .confirm-h1 { font-size: 32px; }
+  footer { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">Shelvian</a>
+    <span class="nav-support">Questions? <a href="mailto:brands@shelvian.com">brands@shelvian.com</a></span>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main>
+  <div class="confirm-wrap">
+
+    <!-- Icon -->
+    <div class="confirm-icon">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 17L13 24L26 9" stroke="#111111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- Status tag -->
+    <div class="status-tag">
+      <span class="status-dot"></span>
+      Application Under Review
+    </div>
+
+    <!-- Headline -->
+    <h1 class="confirm-h1">
+      Thank you for<br>signing <em>up!</em>
+    </h1>
+
+    <!-- Body -->
+    <p class="confirm-body">
+      We've received your application and our team is on it. Once approved, you'll get a personal access link straight to your inbox — sit tight, we'll be in touch <span style="font-family:var(--f-mono);font-weight:500;color:var(--dark)">soon</span>.
+    </p>
+
+    <!-- Steps card -->
+    <div class="steps-card">
+      <div class="steps-title">What happens next</div>
+
+      <div class="step-row">
+        <div class="step-dot done">✓</div>
+        <div class="step-info">
+          <div class="step-label">Application submitted</div>
+          <div class="step-sub">Your brand profile is in our queue</div>
+        </div>
+      </div>
+
+      <div class="step-row">
+        <div class="step-dot pend">2</div>
+        <div class="step-info">
+          <div class="step-label">Team review</div>
+          <div class="step-sub">We verify your brand details — typically within 1–2 days</div>
+        </div>
+      </div>
+
+      <div class="step-row">
+        <div class="step-dot dim">3</div>
+        <div class="step-info">
+          <div class="step-label dim">Access link sent to your email</div>
+          <div class="step-sub">You'll get full access to your brand dashboard</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- CTA -->
+    <a href="#" class="btn-cta">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="3" width="14" height="10" rx="2" stroke="#111" stroke-width="1.5"/>
+        <path d="M1 6h14" stroke="#111" stroke-width="1.5"/>
+        <path d="M5 10h2M9 10h2" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      View Demo Dashboard
+    </a>
+
+    <!-- Note -->
+    <p class="confirm-note">
+      The demo gives you a full preview of your brand dashboard with sample data.<br>
+      Need help? <a href="mailto:brands@shelvian.com">Reach out to our team</a> anytime.
+    </p>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Shelvian</span>
+  <span class="footer-copy">© 2025 Shelvian. All rights reserved.</span>
+</footer>
+
+</body>
+</html>
