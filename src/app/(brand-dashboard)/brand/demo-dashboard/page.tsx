@@ -17,10 +17,10 @@ const AMBASSADOR_AVATARS: Record<string, string> = {
 };
 
 const CITY_IMAGES: Record<string, string> = {
-  "Los Angeles": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=400&h=200&fit=crop",
-  Chicago: "https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=400&h=200&fit=crop",
-  Austin: "https://images.unsplash.com/photo-1565043667947-e69e3f0eb9ec?w=400&h=200&fit=crop",
-  Portland: "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=400&h=200&fit=crop",
+  "Los Angeles": "/Images/Cities/LosAngeles.jpg",
+  Chicago: "/Images/Cities/Chicago.jpg",
+  Austin: "/Images/Cities/Austin.jpg",
+  Portland: "/Images/Cities/Portland.jpg",
 };
 
 // Retailer name (from store string) -> logo URL (ifetchly API, no auth required)
