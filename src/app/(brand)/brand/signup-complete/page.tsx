@@ -12,7 +12,7 @@ function formatPhone(value: string) {
   return digits;
 }
 
-export default function BrandCompletePage() {
+export default function BrandSignupCompletePage() {
   const router = useRouter();
   const [brandName, setBrandName] = useState("");
   const [website, setWebsite] = useState("");
@@ -40,7 +40,7 @@ export default function BrandCompletePage() {
       });
       const data = await res.json();
       if (data.success) {
-        router.push("/onboarding/brand");
+        router.push("/brand/onboarding");
       } else {
         setError(data.error || "Failed to save. Please try again.");
       }
@@ -56,7 +56,7 @@ export default function BrandCompletePage() {
       {/* NAV */}
       <nav className="h-[60px] flex items-center justify-between px-10 border-b border-[var(--border)] bg-[rgba(245,245,240,0.97)] backdrop-blur-[12px] sticky top-0 z-[100]">
         <div className="w-[60px]" />
-        <Link href="/" className="flex items-center gap-2 no-underline">
+        <Link href="/dashboard" className="flex items-center gap-2 no-underline">
           <svg width="32" height="32" viewBox="0 0 34 34" fill="none">
             <rect width="34" height="34" rx="8" fill="#1A1A14" />
             <line x1="17" y1="8.5" x2="17" y2="25.5" stroke="#CBEC45" strokeWidth="2.3" strokeLinecap="round" />

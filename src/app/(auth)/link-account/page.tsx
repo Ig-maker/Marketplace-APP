@@ -70,7 +70,7 @@ export default function LinkAccountPage() {
         localStorage.removeItem(LINK_DATA_KEY);
         setPageState("success");
         setTimeout(() => {
-          router.push(data.profileCompleted ? "/dashboard" : "/onboarding/brand");
+          router.push(data.profileCompleted ? "/dashboard" : "/brand/onboarding");
         }, 2000);
       } else {
         setError(data.error || "Verification failed. Please try again.");

@@ -82,7 +82,7 @@ function CallbackHandler() {
         const result = await res.json();
 
         if (result.success) {
-          router.push(result.profileCompleted ? "/dashboard" : "/onboarding/brand");
+          router.push(result.profileCompleted ? "/dashboard" : "/brand/onboarding");
           return;
         }
 
@@ -124,7 +124,7 @@ function CallbackHandler() {
         return;
       }
 
-      router.push(result.profileCompleted ? "/dashboard" : "/signup/brand/complete");
+      router.push(result.profileCompleted ? "/dashboard" : "/brand/signup-complete");
     };
 
     handleCallback();
