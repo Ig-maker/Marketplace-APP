@@ -138,38 +138,31 @@ export function BrandDashboardShell({
             <div className="brand-plan-tag">Pro</div>
           </div>
           <div className="brand-footer">
-            {brandLogoUrl ? (
-              <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-white/5 border border-white/10 flex items-center justify-center p-0.5">
-                <RetailerLogo
-                  src={brandLogoUrl}
-                  size={32}
-                  className="w-full h-full object-contain"
-                  fallback={
-                    <div className="w-8 h-8 bg-[var(--lime)] rounded-lg flex items-center justify-center">
-                      <svg width="12" height="12" viewBox="0 0 18 18" fill="none">
-                        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#111" />
-                        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#111" />
-                        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#111" />
-                        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="rgba(0,0,0,0.35)" />
-                      </svg>
-                    </div>
-                  }
-                />
-              </div>
-            ) : (
-              <div className="w-8 h-8 bg-[var(--lime)] rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg width="12" height="12" viewBox="0 0 18 18" fill="none">
-                  <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#111" />
-                  <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#111" />
-                  <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#111" />
-                  <rect x="10" y="10" width="6" height="6" rx="1.5" fill="rgba(0,0,0,0.35)" />
-                </svg>
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <div className="font-serif text-[11px] text-white/60 truncate">{displayName}</div>
-              <div className="text-[9px] text-white/30 mt-0.5 truncate">{managerLabel}</div>
+            <div className="w-5 h-5 bg-[var(--lime)] rounded flex items-center justify-center flex-shrink-0">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#111" strokeWidth="2.2" strokeLinecap="round">
+                <line x1="8" y1="1" x2="8" y2="15" />
+                <line x1="1" y1="8" x2="15" y2="8" />
+                <line x1="3" y1="3" x2="13" y2="13" />
+                <line x1="13" y1="3" x2="3" y2="13" />
+              </svg>
             </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-serif text-[11px] text-white/60 leading-tight">Shelvian</div>
+              <div className="text-[9px] text-white/30 mt-0.5 leading-tight">Ambassador Marketplace</div>
+            </div>
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="flex-shrink-0"
+            >
+              <polyline points="4,10 8,6 12,10" />
+            </svg>
           </div>
         </div>
       </aside>
