@@ -36,6 +36,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Rule: Brand user visits /dashboard → redirect to /brand/demo-dashboard
+  if (isLoggedIn && pathname === "/dashboard" && session?.user?.role === "brand") {
+    return NextResponse.redirect(new URL("/brand/demo-dashboard", request.url));
+  }
+
   return NextResponse.next();
 }
 
