@@ -409,9 +409,12 @@ function ShiftRow({
 }
 
 function AmbassadorRow({ name, sub, value, bar }: { name: string; sub: string; value: string; bar: number }) {
+  const avatarBg = ["from-indigo-500 to-violet-500", "from-amber-500 to-orange-500", "from-emerald-500 to-teal-500"][
+    name.charCodeAt(0) % 3
+  ];
   return (
     <div className="brand-amb-row">
-      <div className="w-9 h-9 rounded-lg bg-[var(--elevated)] border border-[var(--border)] flex items-center justify-center font-serif text-[15px] text-white font-normal flex-shrink-0">
+      <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${avatarBg} flex items-center justify-center font-serif text-[15px] text-white font-normal flex-shrink-0 border border-[var(--border)]`}>
         {name.charAt(0)}
       </div>
       <div className="flex-1 min-w-0">
