@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 
-export default async function OnboardingLayout({
+export default async function BrandLayout({
   children,
 }: {
   children: React.ReactNode;

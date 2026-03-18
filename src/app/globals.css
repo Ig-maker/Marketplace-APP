@@ -68,6 +68,62 @@ body {
   to   { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes iconPop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Brand onboarding form styles */
+.field-input {
+  width: 100%;
+  background: var(--elevated);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 11px 13px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--dark);
+  outline: none;
+  transition: border-color 160ms, background 160ms, box-shadow 160ms;
+  -webkit-appearance: none;
+}
+.field-input::placeholder { color: var(--text3); }
+.field-input:focus {
+  border-color: var(--dark);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(17,17,17,0.06);
+}
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: var(--lime);
+  color: var(--dark);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--r);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-primary:hover {
+  background: var(--lime-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--lime-glow);
+}
+.btn-primary:hover svg {
+  transform: translateX(3px);
+}
+
 /* Brand Dashboard */
 @keyframes blink {
   0%, 100% { opacity: 1; }

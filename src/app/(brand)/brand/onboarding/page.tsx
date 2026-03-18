@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type Step = 1 | 2 | "success";
 
@@ -10,13 +11,14 @@ export default function BrandOnboardingPage() {
   const [step, setStep] = useState<Step>(1);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   // Form state — Step 1
   const [brandName, setBrandName] = useState("");
   const [category, setCategory] = useState("");
   const [pitch, setPitch] = useState("");
   const [retailer, setRetailer] = useState("");
-  const [website, setWebsite] = useState("");
 
   // Form state — Step 2
   const [cities, setCities] = useState("");
@@ -24,7 +26,6 @@ export default function BrandOnboardingPage() {
   const [requirements, setRequirements] = useState<string[]>([]);
 
   useEffect(() => {
-    // Get user info from session cookie for display
     const fetchUser = async () => {
       try {
         const res = await fetch("/api/auth/me");
@@ -32,6 +33,9 @@ export default function BrandOnboardingPage() {
           const data = await res.json();
           setUserName(data.user?.name || "");
           setUserEmail(data.user?.email || "");
+          if (data.brandName) {
+            setBrandName(data.brandName);
+          }
         }
       } catch {
         // Silently fail — layout handles auth redirect
@@ -52,15 +56,73 @@ export default function BrandOnboardingPage() {
     );
   };
 
-  const goStep = (n: Step) => {
+  const saveBrandProfile = async () => {
+    setSaving(true);
+    setSaveError("");
+    try {
+      const res = await fetch("/api/auth/onboarding-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brandName,
+          category,
+          pitch,
+          retailer,
+          profileCompleted: false,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setSaveError(data.error || "Failed to save. Please try again.");
+        return false;
+      }
+      return true;
+    } catch {
+      setSaveError("Network error. Please try again.");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const goStep = async (n: Step) => {
+    if (n === 2 && step === 1) {
+      const ok = await saveBrandProfile();
+      if (!ok) return;
+    }
     setStep(n);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const goSuccess = () => {
-    // TODO: Save onboarding data to backend
-    setStep("success");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const goSuccess = async () => {
+    setSaving(true);
+    setSaveError("");
+    try {
+      const res = await fetch("/api/auth/onboarding-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brandName,
+          category,
+          pitch,
+          retailer,
+          cities,
+          budget,
+          ambassadorRequirements: requirements,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        router.push("/brand/signup-confirmation");
+        return;
+      } else {
+        setSaveError(data.error || "Failed to save. Please try again.");
+      }
+    } catch {
+      setSaveError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const goToDashboard = () => {
@@ -71,7 +133,7 @@ export default function BrandOnboardingPage() {
     <div className="min-h-screen bg-[var(--off)]">
       {/* NAV */}
       <nav className="h-[60px] flex items-center justify-between px-10 max-sm:px-5 border-b border-[var(--border)] bg-[rgba(245,245,240,0.97)] backdrop-blur-[12px] sticky top-0 z-[100]">
-        <a href="/" className="flex items-center gap-2 no-underline">
+        <Link href="/dashboard" className="flex items-center gap-2 no-underline">
           <svg width="32" height="32" viewBox="0 0 34 34" fill="none">
             <rect width="34" height="34" rx="8" fill="#1A1A14" />
             <line x1="17" y1="8.5" x2="17" y2="25.5" stroke="#CBEC45" strokeWidth="2.3" strokeLinecap="round" />
@@ -80,7 +142,7 @@ export default function BrandOnboardingPage() {
             <line x1="23" y1="11" x2="11" y2="23" stroke="#CBEC45" strokeWidth="2.3" strokeLinecap="round" />
           </svg>
           <span className="font-serif text-lg text-[#111] tracking-tight">Shelvian</span>
-        </a>
+        </Link>
         <div className="flex items-center gap-2 text-[12px] text-[var(--muted)]">
           <div className="w-7 h-7 rounded-full bg-[var(--dark)] flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0">
             {initial}
@@ -103,13 +165,11 @@ export default function BrandOnboardingPage() {
           {/* Card head — step indicators */}
           <div className="px-7 pt-6 max-sm:px-5 max-sm:pt-5">
             <div className="flex items-center gap-0 mb-5">
-              {/* Step 1: Account (always done) */}
               <div className="flex items-center gap-[7px]">
                 <StepDot status="done" number={1} />
                 <span className="text-[12px] font-medium text-[#18A664] max-sm:hidden">Account</span>
               </div>
               <div className="flex-1 h-px bg-[var(--border)] mx-2 min-w-5" />
-              {/* Step 2: Brand profile */}
               <div className="flex items-center gap-[7px]">
                 <StepDot
                   status={step === 1 ? "active" : step === 2 || step === "success" ? "done" : "pending"}
@@ -120,7 +180,6 @@ export default function BrandOnboardingPage() {
                 }`}>Brand profile</span>
               </div>
               <div className="flex-1 h-px bg-[var(--border)] mx-2 min-w-5" />
-              {/* Step 3: Preferences */}
               <div className="flex items-center gap-[7px]">
                 <StepDot
                   status={step === 2 ? "active" : step === "success" ? "done" : "pending"}
@@ -131,7 +190,6 @@ export default function BrandOnboardingPage() {
                 }`}>Preferences</span>
               </div>
             </div>
-            {/* Card progress bar */}
             <div className="h-[2px] bg-[var(--elevated)]">
               <div
                 className="h-full bg-[var(--lime)] transition-all duration-[450ms]"
@@ -142,7 +200,6 @@ export default function BrandOnboardingPage() {
 
           {/* Card body */}
           <div className="px-7 py-7 max-sm:px-5 max-sm:py-5">
-            {/* STEP 1: Brand Profile */}
             {step === 1 && (
               <div className="flex flex-col" style={{ animation: "fadeUp 280ms cubic-bezier(0.22,1,0.36,1) both" }}>
                 <div className="font-serif text-2xl font-normal tracking-tight text-[var(--dark)] leading-[1.2] mb-[5px]">
@@ -214,24 +271,22 @@ export default function BrandOnboardingPage() {
                   </SelectWrap>
                 </Field>
 
-                <Field label="Website" hint="Optional" noMargin>
-                  <input
-                    type="url"
-                    placeholder="https://yourbrand.com"
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                    className="field-input"
-                  />
-                </Field>
-
-                <button onClick={() => goStep(2)} className="btn-primary mt-[22px]">
-                  Save & Continue
-                  <ArrowIcon />
+                {saveError && (
+                  <div className="bg-[rgba(192,57,43,0.08)] border border-[rgba(192,57,43,0.2)] rounded-[var(--r)] px-4 py-3 mb-4 text-[13px] text-[#C0392B]">
+                    {saveError}
+                  </div>
+                )}
+                <button
+                  onClick={() => goStep(2)}
+                  disabled={saving}
+                  className="btn-primary mt-[22px] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {saving ? "Saving…" : "Save & Continue"}
+                  {!saving && <ArrowIcon />}
                 </button>
               </div>
             )}
 
-            {/* STEP 2: Preferences */}
             {step === 2 && (
               <div className="flex flex-col" style={{ animation: "fadeUp 280ms cubic-bezier(0.22,1,0.36,1) both" }}>
                 <div className="font-serif text-2xl font-normal tracking-tight text-[var(--dark)] leading-[1.2] mb-[5px]">
@@ -327,26 +382,35 @@ export default function BrandOnboardingPage() {
                   </div>
                 </div>
 
-                <button onClick={goSuccess} className="btn-primary mt-[22px]">
-                  Finish Setup
-                  <ArrowIcon />
+                {saveError && (
+                  <div className="bg-[rgba(192,57,43,0.08)] border border-[rgba(192,57,43,0.2)] rounded-[var(--r)] px-4 py-3 mb-4 text-[13px] text-[#C0392B]">
+                    {saveError}
+                  </div>
+                )}
+                <button
+                  onClick={goSuccess}
+                  disabled={saving}
+                  className="btn-primary mt-[22px] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {saving ? "Saving…" : "Finish Setup"}
+                  {!saving && <ArrowIcon />}
                 </button>
                 <button
                   onClick={() => goStep(1)}
-                  className="w-full py-[11px] bg-transparent text-[var(--muted)] font-sans text-[13px] font-medium border-[1.5px] border-[var(--border)] rounded-[var(--r)] cursor-pointer mt-2 hover:border-[var(--border2)] hover:text-[var(--dark)] transition-all"
+                  disabled={saving}
+                  className="w-full py-[11px] bg-transparent text-[var(--muted)] font-sans text-[13px] font-medium border-[1.5px] border-[var(--border)] rounded-[var(--r)] cursor-pointer mt-2 hover:border-[var(--border2)] hover:text-[var(--dark)] transition-all disabled:opacity-60"
                 >
                   ← Back to brand profile
                 </button>
                 <span
-                  onClick={goSuccess}
-                  className="block text-center mt-[13px] text-[12px] text-[var(--muted)] cursor-pointer hover:text-[var(--dark)] hover:underline"
+                  onClick={saving ? undefined : goSuccess}
+                  className={`block text-center mt-[13px] text-[12px] text-[var(--muted)] ${saving ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:text-[var(--dark)] hover:underline"}`}
                 >
                   Skip for now — I&apos;ll set preferences later
                 </span>
               </div>
             )}
 
-            {/* SUCCESS */}
             {step === "success" && (
               <div className="flex flex-col items-center text-center py-3 pb-2" style={{ animation: "fadeUp 280ms cubic-bezier(0.22,1,0.36,1) both" }}>
                 <div
@@ -394,66 +458,9 @@ export default function BrandOnboardingPage() {
           </div>
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes popIn {
-          from { transform: scale(0.3); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        .field-input {
-          width: 100%;
-          background: var(--elevated);
-          border: 1.5px solid var(--border);
-          border-radius: var(--r);
-          padding: 11px 13px;
-          font-family: var(--f-body);
-          font-size: 14px;
-          color: var(--dark);
-          outline: none;
-          transition: border-color 160ms, background 160ms, box-shadow 160ms;
-          -webkit-appearance: none;
-        }
-        .field-input::placeholder { color: var(--text3); }
-        .field-input:focus {
-          border-color: var(--dark);
-          background: #fff;
-          box-shadow: 0 0 0 4px rgba(17,17,17,0.06);
-        }
-        .btn-primary {
-          width: 100%;
-          padding: 13px;
-          background: var(--lime);
-          color: var(--dark);
-          font-family: var(--f-body);
-          font-size: 14px;
-          font-weight: 700;
-          border: none;
-          border-radius: var(--r);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .btn-primary:hover {
-          background: var(--lime-dark);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px var(--lime-glow);
-        }
-        .btn-primary:hover svg {
-          transform: translateX(3px);
-        }
-      `}</style>
     </div>
   );
 }
-
-/* ── Shared sub-components ── */
 
 function StepDot({ status, number }: { status: "pending" | "active" | "done"; number: number }) {
   if (status === "done") {
