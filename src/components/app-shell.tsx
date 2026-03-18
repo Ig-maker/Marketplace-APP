@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import type { User } from "@/types/auth";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: DashboardIcon },
+const getNavItems = (role: User["role"]) => [
+  { href: role === "brand" ? "/brand/demo-dashboard" : "/dashboard", label: "Dashboard", icon: DashboardIcon },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
   { href: "/billing", label: "Billing", icon: BillingIcon },
 ];
@@ -25,13 +25,16 @@ export function AppShell({
     if (isLoggingOut) return;
 
     setIsLoggingOut(true);
-
-    // Prefer server-driven logout navigation; keep router fallback for merge-safe compatibility.
     try {
-      window.location.assign("/api/auth/logout");
-    } catch {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+      });
+    } finally {
       router.replace("/login");
       router.refresh();
+      window.location.assign("/login");
       setIsLoggingOut(false);
     }
   };
@@ -41,7 +44,7 @@ export function AppShell({
       {/* Top Nav */}
       <header className="bg-[var(--surface)] border-b border-[var(--border)] px-6 h-16 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-8">
-          <a href="/dashboard" className="flex items-center gap-2.5 no-underline">
+          <a href={user.role === "brand" ? "/brand/demo-dashboard" : "/dashboard"} className="flex items-center gap-2.5 no-underline">
             <div className="w-[30px] h-[30px] bg-[var(--lime)] rounded-[7px] flex items-center justify-center flex-shrink-0">
               <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
                 <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#111" />
@@ -54,7 +57,7 @@ export function AppShell({
           </a>
 
           <nav className="hidden md:flex items-center gap-1">
-            {NAV_ITEMS.map((item) => {
+            {getNavItems(user.role).map((item) => {
               const isActive = pathname === item.href;
               return (
                 <a

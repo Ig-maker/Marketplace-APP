@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      { source: "/signup/brand/complete", destination: "/brand/signup-complete", permanent: true },
+      { source: "/onboarding/brand", destination: "/brand/onboarding", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
