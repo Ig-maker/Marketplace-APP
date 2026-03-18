@@ -346,6 +346,7 @@ export default async function BrandDemoDashboardPage() {
                 cust='"Oh wow I&apos;ve never tried this. I&apos;ll grab a 4-pack — where&apos;s the QR for the discount?"'
                 sku="Cherry Vanilla · Converted"
                 skuHighlight="Converted"
+                showShare
               />
               <TranscriptRow
                 store="Target LA · Parker N."
@@ -395,6 +396,9 @@ export default async function BrandDemoDashboardPage() {
               <ActivityRow icon="li" text={<>New shift posted — <strong>Safeway SF Marina</strong> Mar 20 · Ambassador needed</>} time="1h 8m ago" />
               <ActivityRow icon="gr" text={<><strong>Morgan W.</strong> received a new 5-star AI-captured review</>} time="1h 22m ago" />
               <ActivityRow icon="bl" text={<>Payout of <strong>$1,240</strong> processed for 6 ambassadors</>} time="3h ago" />
+              <ActivityRow icon="gr" text={<><strong>Reese M.</strong> checked in at Sprouts Chicago · Location verified</>} time="3h 15m ago" />
+              <ActivityRow icon="li" text={<>Sample kit shipped to <strong>Nashville Kroger</strong> · ETA today 12:30 PM</>} time="5h ago" />
+              <ActivityRow icon="am" text={<>Shift reminder sent to <strong>Morgan W.</strong> for 1:00 PM Nashville shift</>} time="6h ago" />
             </div>
           </div>
         </div>
@@ -522,8 +526,78 @@ export default async function BrandDemoDashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Row 5: Pending Payouts */}
+        <div className="brand-sec-div">
+          <div className="brand-sec-tag">Pending Payouts</div>
+          <div className="brand-sec-line" />
+          <span className="brand-sec-ct">$2,180 due this week</span>
+        </div>
+        <div className="brand-panel">
+          <div className="brand-panel-head">
+            <DollarIcon />
+            <div className="font-serif text-[14.5px] text-[var(--dark)]">Ambassador Payout Queue</div>
+            <div className="flex-1 min-w-1" />
+            <button type="button" className="brand-tb-btn ghost text-[11px] py-1.5 px-2.5">Review All</button>
+            <button type="button" className="brand-tb-btn lime text-[11px] py-1.5 px-2.5">
+              <DollarIconSmall /> Pay All · $2,180
+            </button>
+          </div>
+          <div className="grid grid-cols-2">
+            <div className="px-4 py-1 border-r border-[var(--border)]">
+              <PayoutRow name="Blake T." sub="HEB Houston · 3 shifts" amt="$360" badge="Ready" badgeClass="b-green" />
+              <PayoutRow name="Jenna K." sub="Whole Foods · 2 shifts" amt="$240" badge="Ready" badgeClass="b-green" />
+              <PayoutRow name="Morgan W." sub="Kroger Nashville · 1 shift" amt="$120" badge="Pending" badgeClass="b-amber" />
+            </div>
+            <div className="px-4 py-1">
+              <PayoutRow name="Parker N." sub="Target LA · 2 shifts" amt="$280" badge="Report Due" badgeClass="b-red" />
+              <PayoutRow name="Reese M." sub="Sprouts Chicago · 1 shift" amt="$180" badge="In Progress" badgeClass="b-amber" />
+              <PayoutRow name="4 more ambassadors" sub="$1,000 combined" amt="$1,000" badge="Queued" badgeClass="b-muted" muted />
+            </div>
+          </div>
+        </div>
       </div>
     </>
+  );
+}
+
+function PayoutRow({ name, sub, amt, badge, badgeClass, muted }: { name: string; sub: string; amt: string; badge: string; badgeClass: string; muted?: boolean }) {
+  const avatarBg = muted ? "" : ["from-indigo-500 to-violet-500", "from-amber-500 to-orange-500", "from-emerald-500 to-teal-500"][name.charCodeAt(0) % 3];
+  return (
+    <div className="brand-pay-row">
+      {muted ? (
+        <div className="w-[30px] h-[30px] rounded-full bg-[var(--elevated)] border border-dashed border-[var(--border)] flex items-center justify-center flex-shrink-0">
+          <UsersIconSmall />
+        </div>
+      ) : (
+        <div className={`w-[30px] h-[30px] rounded-full bg-gradient-to-br ${avatarBg} flex items-center justify-center font-serif text-[11px] text-white font-normal flex-shrink-0 border border-[var(--border)]`}>
+          {name.charAt(0)}
+        </div>
+      )}
+      <div className="brand-pay-info flex-1 min-w-0">
+        <div className={`brand-pay-name ${muted ? "text-[var(--text3)]" : ""}`}>{name}</div>
+        <div className="brand-pay-sub">{sub}</div>
+      </div>
+      <div className={`brand-pay-amt ${muted ? "text-[var(--text3)]" : ""}`}>{amt}</div>
+      <span className={`brand-badge ${badgeClass} text-[8px] ml-2 flex-shrink-0`}>{badge}</span>
+    </div>
+  );
+}
+
+function DollarIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--text3)" strokeWidth="1.5">
+      <line x1="8" y1="1.5" x2="8" y2="14.5" />
+      <path d="M10.5 4H6.75a2.25 2.25 0 000 4.5h2.5a2.25 2.25 0 010 4.5H5" />
+    </svg>
+  );
+}
+function DollarIconSmall() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <line x1="8" y1="1.5" x2="8" y2="14.5" />
+      <path d="M10.5 4H6.75a2.25 2.25 0 000 4.5h2.5a2.25 2.25 0 010 4.5H5" />
+    </svg>
   );
 }
 
@@ -819,6 +893,7 @@ function TranscriptRow({
   statusClass,
   skuHighlight,
   skuHighlightClass = "green",
+  showShare,
   showFlag,
 }: {
   store: string;
@@ -830,6 +905,7 @@ function TranscriptRow({
   statusClass?: "amber" | "muted";
   skuHighlight?: string;
   skuHighlightClass?: "green" | "amber";
+  showShare?: boolean;
   showFlag?: boolean;
 }) {
   const statusBg =
@@ -863,7 +939,7 @@ function TranscriptRow({
           <div className="text-[11.5px] text-[var(--text2)] leading-snug">{cust}</div>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-1.5 mt-1">
+        <div className="flex items-center justify-between gap-1.5 mt-1">
         <span className="font-mono text-[9px] text-[var(--text3)]">
           {skuHighlight ? (
             <>
@@ -876,6 +952,7 @@ function TranscriptRow({
         </span>
         <div className="flex gap-1">
           <button type="button" className="brand-fb-btn text-[8px]">Full</button>
+          {showShare && <button type="button" className="brand-fb-btn text-[8px]">Share</button>}
           {showFlag && (
             <button type="button" className="brand-fb-btn brand-fb-btn-flag text-[8px]">Flag</button>
           )}
