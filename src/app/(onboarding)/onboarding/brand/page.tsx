@@ -113,8 +113,8 @@ export default function BrandOnboardingPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setStep("success");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        router.push("/brand/signup-confirmation");
+        return;
       } else {
         setSaveError(data.error || "Failed to save. Please try again.");
       }
