@@ -20,7 +20,7 @@ const CITY_IMAGES: Record<string, string> = {
   "Los Angeles": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=400&h=200&fit=crop",
   Chicago: "https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=400&h=200&fit=crop",
   Austin: "https://images.unsplash.com/photo-1565043667947-e69e3f0eb9ec?w=400&h=200&fit=crop",
-  Nashville: "https://images.unsplash.com/photo-1508807528931-b7cb6d2d9c51?w=400&h=200&fit=crop",
+  Portland: "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=400&h=200&fit=crop",
 };
 
 // Retailer name (from store string) -> logo URL (ifetchly API, no auth required)
@@ -230,11 +230,11 @@ export default async function BrandDemoDashboardPage() {
               />
               <ShiftRow
                 status="li"
-                store="Kroger — Green Hills, Nashville TN"
+                store="Kroger — Downtown, Portland OR"
                 ambassador="Morgan W."
                 ambassadorMeta="4.7★ · 4 prior shifts"
                 time="1:00–6:00 PM"
-                location="Nashville, TN"
+                location="Portland, OR"
                 skus="Cherry Vanilla"
                 tags={["Confirmed · Starts 1pm"]}
                 samples="0 / 80"
@@ -296,7 +296,7 @@ export default async function BrandDemoDashboardPage() {
                 <AmbassadorRow name="Jenna K." sub="★★★★★ 5.0 · Los Angeles" value="12" valueLabel="Shifts" bar={100} />
                 <AmbassadorRow name="Parker N." sub="★★★★★ 4.9 · Chicago" value="8" valueLabel="Shifts" bar={67} />
                 <AmbassadorRow name="Blake T." sub="★★★★★ 4.8 · Houston" value="6" valueLabel="Shifts" bar={50} />
-                <AmbassadorRow name="Morgan W." sub="★★★★☆ 4.7 · Nashville" value="4" valueLabel="Shifts" bar={33} />
+                <AmbassadorRow name="Morgan W." sub="★★★★☆ 4.7 · Portland" value="4" valueLabel="Shifts" bar={33} />
               </div>
               <div className="brand-mms">
                 <div className="brand-mm"><div className="brand-mm-val">98%</div><div className="brand-mm-lbl">Show Rate</div></div>
@@ -481,8 +481,8 @@ export default async function BrandDemoDashboardPage() {
               <ActivityRow icon="gr" iconType="star" text={<><strong>Morgan W.</strong> received a new 5-star AI-captured review</>} time="1h 22m ago" />
               <ActivityRow icon="bl" iconType="dollar" text={<>Payout of <strong>$1,240</strong> processed for 6 ambassadors</>} time="3h ago" />
               <ActivityRow icon="gr" iconType="pin" text={<><strong>Reese M.</strong> checked in at Sprouts Chicago · Location verified</>} time="3h 15m ago" />
-              <ActivityRow icon="li" iconType="box" text={<>Sample kit shipped to <strong>Nashville Kroger</strong> · ETA today 12:30 PM</>} time="5h ago" />
-              <ActivityRow icon="am" iconType="clock" text={<>Shift reminder sent to <strong>Morgan W.</strong> for 1:00 PM Nashville shift</>} time="6h ago" />
+              <ActivityRow icon="li" iconType="box" text={<>Sample kit shipped to <strong>Portland Kroger</strong> · ETA today 12:30 PM</>} time="5h ago" />
+              <ActivityRow icon="am" iconType="clock" text={<>Shift reminder sent to <strong>Morgan W.</strong> for 1:00 PM Portland shift</>} time="6h ago" />
             </div>
           </div>
         </div>
@@ -497,7 +497,7 @@ export default async function BrandDemoDashboardPage() {
           <CityCard name="Los Angeles" stats="3 shifts · 14 ambassadors · $2,840" live="3 active" badge="Hot Market" badgeClass="b-lime" />
           <CityCard name="Chicago" stats="2 shifts · 9 ambassadors · $1,420" live="1 active" badge="Slow Velocity" badgeClass="b-amber" />
           <CityCard name="Austin" stats="2 shifts · 7 ambassadors · $1,680" live="2 active" badge="Top Conversion" badgeClass="b-lime" />
-          <CityCard name="Nashville" stats="1 shift · 4 ambassadors · $640" live="Starting soon" badge="New Market" badgeClass="b-muted" />
+          <CityCard name="Portland" stats="1 shift · 4 ambassadors · $640" live="Starting soon" badge="New Market" badgeClass="b-muted" />
         </div>
 
         {/* Row 4: Product Performance */}
@@ -631,7 +631,7 @@ export default async function BrandDemoDashboardPage() {
             <div className="px-4 py-1 border-r border-[var(--border)]">
               <PayoutRow name="Blake T." sub="HEB Houston · 3 shifts" amt="$360" badge="Ready" badgeClass="b-green" />
               <PayoutRow name="Jenna K." sub="Whole Foods · 2 shifts" amt="$240" badge="Ready" badgeClass="b-green" />
-              <PayoutRow name="Morgan W." sub="Kroger Nashville · 1 shift" amt="$120" badge="Pending" badgeClass="b-amber" />
+              <PayoutRow name="Morgan W." sub="Kroger Portland · 1 shift" amt="$120" badge="Pending" badgeClass="b-amber" />
             </div>
             <div className="px-4 py-1">
               <PayoutRow name="Parker N." sub="Target LA · 2 shifts" amt="$280" badge="Report Due" badgeClass="b-red" />
