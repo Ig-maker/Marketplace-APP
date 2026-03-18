@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/session";
 import { BrandAlertBanner } from "@/components/brand-alert-banner";
+import { RetailerLogo } from "@/components/retailer-logo";
 import Image from "next/image";
 import type { Metadata } from "next";
 
@@ -21,6 +22,27 @@ const CITY_IMAGES: Record<string, string> = {
   Austin: "https://images.unsplash.com/photo-1565043667947-e69e3f0eb9ec?w=400&h=200&fit=crop",
   Nashville: "https://images.unsplash.com/photo-1508807528931-b7cb6d2d9c51?w=400&h=200&fit=crop",
 };
+
+// Retailer name (from store string) -> logo URL (ifetchly API, no auth required)
+const RETAILER_LOGO_DOMAINS: Record<string, string> = {
+  "Whole Foods Market": "wholefoodsmarket.com",
+  "Whole Foods": "wholefoodsmarket.com",
+  Target: "target.com",
+  "Sprouts Farmers Market": "sprouts.com",
+  Sprouts: "sprouts.com",
+  Kroger: "kroger.com",
+  HEB: "heb.com",
+  Safeway: "safeway.com",
+};
+
+function getRetailerLogoUrl(store: string): string | null {
+  for (const [retailer, domain] of Object.entries(RETAILER_LOGO_DOMAINS)) {
+    if (store.startsWith(retailer)) {
+      return `https://logo.ifetchly.com/api/logo?domain=${domain}`;
+    }
+  }
+  return null;
+}
 
 const PRODUCT_ICONS: Record<
   string,
@@ -861,13 +883,26 @@ function ShiftRow({
     if (t === "Pending Report" || t === "Slow Start") return "brand-badge b-amber";
     return "brand-badge b-muted";
   };
+  const logoUrl = getRetailerLogoUrl(store);
+  const houseIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      <polyline points="9,22 9,12 15,12 15,22" />
+    </svg>
+  );
   return (
     <div className="brand-sr">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 border ${statusBg}`}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          <polyline points="9,22 9,12 15,12 15,22" />
-        </svg>
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 border overflow-hidden ${logoUrl ? "bg-white" : statusBg}`}>
+        {logoUrl ? (
+          <RetailerLogo
+            src={logoUrl}
+            size={36}
+            className="w-9 h-9 object-contain p-1"
+            fallback={houseIcon}
+          />
+        ) : (
+          houseIcon
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-[12.5px] font-semibold text-[var(--dark)] truncate">{store}</div>
@@ -971,6 +1006,7 @@ function AmbassadorRow({ name, sub, value, valueLabel, bar }: { name: string; su
 function UpcomingRow({ day, mon, store, meta, amb, badge, badgeClass }: { day: string; mon: string; store: string; meta: string; amb?: string; badge: string; badgeClass: string }) {
   const avatarUrl = amb ? AMBASSADOR_AVATARS[amb] : null;
   const avatarBg = amb && !avatarUrl ? ["from-indigo-500 to-violet-500", "from-amber-500 to-orange-500", "from-emerald-500 to-teal-500"][amb.charCodeAt(0) % 3] : "";
+  const retailerLogoUrl = getRetailerLogoUrl(store);
   return (
     <div className="brand-upc-row">
       <div className="brand-upc-date">
@@ -991,6 +1027,19 @@ function UpcomingRow({ day, mon, store, meta, amb, badge, badgeClass }: { day: s
             {amb.charAt(0)}
           </div>
         )
+      ) : retailerLogoUrl ? (
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 border border-[var(--border)] bg-white overflow-hidden p-0.5">
+          <RetailerLogo
+            src={retailerLogoUrl}
+            size={28}
+            className="w-full h-full object-contain"
+            fallback={
+              <div className="w-7 h-7 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex items-center justify-center flex-shrink-0">
+                <UsersIconSmall />
+              </div>
+            }
+          />
+        </div>
       ) : (
         <div className="w-7 h-7 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex items-center justify-center flex-shrink-0">
           <UsersIconSmall />
