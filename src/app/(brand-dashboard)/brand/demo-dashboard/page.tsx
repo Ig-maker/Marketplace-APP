@@ -451,16 +451,16 @@ export default async function BrandDemoDashboardPage() {
               <a href="/brand/demo-dashboard" className="brand-ph-link">All <ChevIcon /></a>
             </div>
             <div className="brand-panel-body max-h-[320px] overflow-y-auto">
-              <ActivityRow icon="li" text={<><strong>Jenna K.</strong> uploaded 4 shift photos from Whole Foods Austin</>} time="2 min ago" />
-              <ActivityRow icon="gr" text={<><strong>Blake T.</strong> completed shift and filed full report · HEB Houston</>} time="28 min ago" />
-              <ActivityRow icon="am" text={<><strong>Sprouts Chicago</strong> flagged for low velocity — 12/100 after 2 hrs</>} time="35 min ago" />
-              <ActivityRow icon="re" text={<><strong>Parker N.</strong> shift report overdue (2h) · Target LA</>} time="1h ago" />
-              <ActivityRow icon="li" text={<>New shift posted — <strong>Safeway SF Marina</strong> Mar 20 · Ambassador needed</>} time="1h 8m ago" />
-              <ActivityRow icon="gr" text={<><strong>Morgan W.</strong> received a new 5-star AI-captured review</>} time="1h 22m ago" />
-              <ActivityRow icon="bl" text={<>Payout of <strong>$1,240</strong> processed for 6 ambassadors</>} time="3h ago" />
-              <ActivityRow icon="gr" text={<><strong>Reese M.</strong> checked in at Sprouts Chicago · Location verified</>} time="3h 15m ago" />
-              <ActivityRow icon="li" text={<>Sample kit shipped to <strong>Nashville Kroger</strong> · ETA today 12:30 PM</>} time="5h ago" />
-              <ActivityRow icon="am" text={<>Shift reminder sent to <strong>Morgan W.</strong> for 1:00 PM Nashville shift</>} time="6h ago" />
+              <ActivityRow icon="li" iconType="cam" text={<><strong>Jenna K.</strong> uploaded 4 shift photos from Whole Foods Austin</>} time="2 min ago" />
+              <ActivityRow icon="gr" iconType="check" text={<><strong>Blake T.</strong> completed shift and filed full report · HEB Houston</>} time="28 min ago" />
+              <ActivityRow icon="am" iconType="zap" text={<><strong>Sprouts Chicago</strong> flagged for low velocity — 12/100 after 2 hrs</>} time="35 min ago" />
+              <ActivityRow icon="re" iconType="warn" text={<><strong>Parker N.</strong> shift report overdue (2h) · Target LA</>} time="1h ago" />
+              <ActivityRow icon="li" iconType="plus" text={<>New shift posted — <strong>Safeway SF Marina</strong> Mar 20 · Ambassador needed</>} time="1h 8m ago" />
+              <ActivityRow icon="gr" iconType="star" text={<><strong>Morgan W.</strong> received a new 5-star AI-captured review</>} time="1h 22m ago" />
+              <ActivityRow icon="bl" iconType="dollar" text={<>Payout of <strong>$1,240</strong> processed for 6 ambassadors</>} time="3h ago" />
+              <ActivityRow icon="gr" iconType="pin" text={<><strong>Reese M.</strong> checked in at Sprouts Chicago · Location verified</>} time="3h 15m ago" />
+              <ActivityRow icon="li" iconType="box" text={<>Sample kit shipped to <strong>Nashville Kroger</strong> · ETA today 12:30 PM</>} time="5h ago" />
+              <ActivityRow icon="am" iconType="clock" text={<>Shift reminder sent to <strong>Morgan W.</strong> for 1:00 PM Nashville shift</>} time="6h ago" />
             </div>
           </div>
         </div>
@@ -1085,7 +1085,105 @@ function TranscriptRow({
   );
 }
 
-function ActivityRow({ icon, text, time }: { icon: "li" | "gr" | "am" | "re" | "bl"; text: React.ReactNode; time: string }) {
+const ACTIVITY_ICONS: Record<
+  string,
+  { path: React.ReactNode; colorClass: string }
+> = {
+  cam: {
+    path: (
+      <>
+        <path d="M14.5 12A1.5 1.5 0 0113 13.5H3A1.5 1.5 0 011.5 12V5.5A1.5 1.5 0 013 4h1.5L6 2h4l1.5 2H13A1.5 1.5 0 0114.5 5.5V12z" />
+        <circle cx="8" cy="8.5" r="2" />
+      </>
+    ),
+    colorClass: "text-[#111]",
+  },
+  check: {
+    path: (
+      <>
+        <circle cx="8" cy="8" r="6.5" />
+        <polyline points="5,8.5 7,10.5 11,6.5" />
+      </>
+    ),
+    colorClass: "text-[var(--green)]",
+  },
+  zap: {
+    path: <polygon points="9,1.5 2.5,9.5 7.5,9.5 7,14.5 13.5,6.5 8.5,6.5" />,
+    colorClass: "text-[var(--amber)]",
+  },
+  warn: {
+    path: (
+      <>
+        <path d="M8 1.5L1 14.5h14L8 1.5z" />
+        <line x1="8" y1="6.5" x2="8" y2="9.5" />
+        <line x1="8" y1="11.5" x2="8.01" y2="11.5" strokeWidth={2} />
+      </>
+    ),
+    colorClass: "text-[var(--red)]",
+  },
+  plus: {
+    path: (
+      <>
+        <line x1="8" y1="2" x2="8" y2="14" />
+        <line x1="2" y1="8" x2="14" y2="8" />
+      </>
+    ),
+    colorClass: "text-[#111]",
+  },
+  star: {
+    path: <polygon points="8,1.5 9.9,6.1 15,6.5 11.25,9.8 12.47,14.5 8,11.77 3.53,14.5 4.75,9.8 1,6.5 6.1,6.1" />,
+    colorClass: "text-[var(--green)]",
+  },
+  dollar: {
+    path: (
+      <>
+        <line x1="8" y1="1.5" x2="8" y2="14.5" />
+        <path d="M10.5 4H6.75a2.25 2.25 0 000 4.5h2.5a2.25 2.25 0 010 4.5H5" />
+      </>
+    ),
+    colorClass: "text-[var(--blue)]",
+  },
+  pin: {
+    path: (
+      <>
+        <path d="M8 1.5C5.52 1.5 3.5 3.52 3.5 6c0 3.75 4.5 8.5 4.5 8.5s4.5-4.75 4.5-8.5c0-2.48-2.02-4.5-4.5-4.5z" />
+        <circle cx="8" cy="6" r="1.5" />
+      </>
+    ),
+    colorClass: "text-[var(--green)]",
+  },
+  box: {
+    path: (
+      <>
+        <polyline points="14.5,5 8,1.5 1.5,5 1.5,11 8,14.5 14.5,11 14.5,5" />
+        <polyline points="1.5,5 8,8.5 14.5,5" />
+        <line x1="8" y1="8.5" x2="8" y2="14.5" />
+      </>
+    ),
+    colorClass: "text-[#111]",
+  },
+  clock: {
+    path: (
+      <>
+        <circle cx="8" cy="8" r="6.5" />
+        <polyline points="8,4.5 8,8 10.5,10" />
+      </>
+    ),
+    colorClass: "text-[var(--amber)]",
+  },
+};
+
+function ActivityRow({
+  icon,
+  iconType,
+  text,
+  time,
+}: {
+  icon: "li" | "gr" | "am" | "re" | "bl";
+  iconType: "cam" | "check" | "zap" | "warn" | "plus" | "star" | "dollar" | "pin" | "box" | "clock";
+  text: React.ReactNode;
+  time: string;
+}) {
   const iconBg = {
     li: "bg-lime/15 border-lime-dark/30",
     gr: "bg-[var(--green-bg)] border-green/20",
@@ -1093,11 +1191,22 @@ function ActivityRow({ icon, text, time }: { icon: "li" | "gr" | "am" | "re" | "
     re: "bg-[var(--red-bg)] border-red/20",
     bl: "bg-[var(--blue-bg)] border-blue/20",
   }[icon];
+  const activityIcon = ACTIVITY_ICONS[iconType] ?? ACTIVITY_ICONS.plus;
   return (
     <div className="brand-act-row">
       <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 border ${iconBg}`}>
-        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className={icon === "gr" ? "text-[var(--green)]" : icon === "am" ? "text-[var(--amber)]" : icon === "re" ? "text-[var(--red)]" : icon === "bl" ? "text-[var(--blue)]" : "text-[#111]"}>
-          <path d="M8 1v14M1 8h14" />
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={activityIcon.colorClass}
+        >
+          {activityIcon.path}
         </svg>
       </div>
       <div>
