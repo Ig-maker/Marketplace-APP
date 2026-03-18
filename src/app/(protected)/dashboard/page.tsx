@@ -17,6 +17,14 @@ export default async function DashboardPage() {
         <p className="text-[var(--text3)] text-[15px]">
           Here&apos;s what&apos;s happening with your {user?.role === "brand" ? "campaigns" : "shifts"} today.
         </p>
+        {user?.role === "brand" && (
+          <a
+            href="/brand/demo-dashboard"
+            className="inline-flex items-center gap-2 mt-4 text-[13px] font-semibold text-[var(--dark)] no-underline hover:underline"
+          >
+            View Brand Dashboard →
+          </a>
+        )}
       </div>
 
       {/* Stats Grid */}
