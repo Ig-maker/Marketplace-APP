@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/session-edge";
 import { PUBLIC_ROUTES, DEFAULT_REDIRECT } from "@/lib/constants";
 
-const PROTECTED_PATHS = ["/dashboard", "/settings", "/billing", "/onboarding"];
+const PROTECTED_PATHS = ["/dashboard", "/settings", "/billing", "/onboarding", "/brand"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -34,6 +34,11 @@ export function middleware(request: NextRequest) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Rule: Brand user visits /dashboard → redirect to /brand/demo-dashboard
+  if (isLoggedIn && pathname === "/dashboard" && session?.user?.role === "brand") {
+    return NextResponse.redirect(new URL("/brand/demo-dashboard", request.url));
   }
 
   return NextResponse.next();

@@ -126,7 +126,7 @@ function BrandSignupContent() {
         });
         const confirmData = await confirmRes.json();
         if (confirmData.success) {
-          router.push("/onboarding/brand");
+          router.push("/brand/onboarding");
         } else {
           setError(confirmData.error || "Could not complete signup.");
           return;
