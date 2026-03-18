@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
 
   // Rule: Root path redirect
   if (pathname === "/") {
-    const target = isLoggedIn ? DEFAULT_REDIRECT : "/login";
+    const target = isLoggedIn ? "/brand/signup-confirmation" : "/login";
     return NextResponse.redirect(new URL(target, request.url));
   }
 
