@@ -1,9 +1,18 @@
 import { getCurrentUser } from "@/lib/session";
 import { BrandAlertBanner } from "@/components/brand-alert-banner";
+import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Brand Dashboard — Shelvian",
+};
+
+const AMBASSADOR_AVATARS: Record<string, string> = {
+  "Jenna K.": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=150&h=150&fit=crop",
+  "Parker N.": "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=150&h=150&fit=crop",
+  "Reese M.": "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop",
+  "Morgan W.": "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=150&h=150&fit=crop",
+  "Blake T.": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&h=150&fit=crop",
 };
 
 export default async function BrandDemoDashboardPage() {
@@ -562,6 +571,7 @@ export default async function BrandDemoDashboardPage() {
 }
 
 function PayoutRow({ name, sub, amt, badge, badgeClass, muted }: { name: string; sub: string; amt: string; badge: string; badgeClass: string; muted?: boolean }) {
+  const avatarUrl = !muted ? AMBASSADOR_AVATARS[name] : null;
   const avatarBg = muted ? "" : ["from-indigo-500 to-violet-500", "from-amber-500 to-orange-500", "from-emerald-500 to-teal-500"][name.charCodeAt(0) % 3];
   return (
     <div className="brand-pay-row">
@@ -569,6 +579,14 @@ function PayoutRow({ name, sub, amt, badge, badgeClass, muted }: { name: string;
         <div className="w-[30px] h-[30px] rounded-full bg-[var(--elevated)] border border-dashed border-[var(--border)] flex items-center justify-center flex-shrink-0">
           <UsersIconSmall />
         </div>
+      ) : avatarUrl ? (
+        <Image
+          src={avatarUrl}
+          alt={name}
+          width={30}
+          height={30}
+          className="w-[30px] h-[30px] rounded-full object-cover flex-shrink-0 border border-[var(--border)]"
+        />
       ) : (
         <div className={`w-[30px] h-[30px] rounded-full bg-gradient-to-br ${avatarBg} flex items-center justify-center font-serif text-[11px] text-white font-normal flex-shrink-0 border border-[var(--border)]`}>
           {name.charAt(0)}
@@ -781,7 +799,17 @@ function ShiftRow({
       <div className="flex-1 min-w-0">
         <div className="text-[12.5px] font-semibold text-[var(--dark)] truncate">{store}</div>
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-          {!unassigned && <span className="w-4 h-4 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex-shrink-0" />}
+          {!unassigned && AMBASSADOR_AVATARS[ambassador] ? (
+            <Image
+              src={AMBASSADOR_AVATARS[ambassador]}
+              alt={ambassador}
+              width={18}
+              height={18}
+              className="w-[18px] h-[18px] rounded-full object-cover border border-[var(--border)] flex-shrink-0"
+            />
+          ) : !unassigned && (
+            <span className="w-4 h-4 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex-shrink-0" />
+          )}
           {unassigned && (
             <svg width="12" height="12" className="text-[var(--text3)] flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <circle cx="6" cy="5" r="2.5" />
@@ -833,14 +861,25 @@ function ShiftRow({
 }
 
 function AmbassadorRow({ name, sub, value, valueLabel, bar }: { name: string; sub: string; value: string; valueLabel?: string; bar: number }) {
+  const avatarUrl = AMBASSADOR_AVATARS[name];
   const avatarBg = ["from-indigo-500 to-violet-500", "from-amber-500 to-orange-500", "from-emerald-500 to-teal-500"][
     name.charCodeAt(0) % 3
   ];
   return (
     <div className="brand-amb-row">
-      <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${avatarBg} flex items-center justify-center font-serif text-[15px] text-white font-normal flex-shrink-0 border border-[var(--border)]`}>
-        {name.charAt(0)}
-      </div>
+      {avatarUrl ? (
+        <Image
+          src={avatarUrl}
+          alt={name}
+          width={36}
+          height={36}
+          className="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-[var(--border)]"
+        />
+      ) : (
+        <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${avatarBg} flex items-center justify-center font-serif text-[15px] text-white font-normal flex-shrink-0 border border-[var(--border)]`}>
+          {name.charAt(0)}
+        </div>
+      )}
       <div className="flex-1 min-w-0">
         <div className="font-serif text-[13px] text-[var(--dark)]">{name}</div>
         <div className="text-[10px] text-[var(--text3)] mt-0.5 flex items-center gap-1">{sub}</div>
@@ -857,7 +896,8 @@ function AmbassadorRow({ name, sub, value, valueLabel, bar }: { name: string; su
 }
 
 function UpcomingRow({ day, mon, store, meta, amb, badge, badgeClass }: { day: string; mon: string; store: string; meta: string; amb?: string; badge: string; badgeClass: string }) {
-  const avatarBg = amb ? ["from-indigo-500 to-violet-500", "from-amber-500 to-orange-500", "from-emerald-500 to-teal-500"][amb.charCodeAt(0) % 3] : "";
+  const avatarUrl = amb ? AMBASSADOR_AVATARS[amb] : null;
+  const avatarBg = amb && !avatarUrl ? ["from-indigo-500 to-violet-500", "from-amber-500 to-orange-500", "from-emerald-500 to-teal-500"][amb.charCodeAt(0) % 3] : "";
   return (
     <div className="brand-upc-row">
       <div className="brand-upc-date">
@@ -865,9 +905,19 @@ function UpcomingRow({ day, mon, store, meta, amb, badge, badgeClass }: { day: s
         <div className="text-[8px] text-[var(--text3)] uppercase tracking-wider mt-0.5">{mon}</div>
       </div>
       {amb ? (
-        <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${avatarBg} flex items-center justify-center font-serif text-[11px] text-white font-normal flex-shrink-0 border border-[var(--border)]`}>
-          {amb.charAt(0)}
-        </div>
+        avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={amb}
+            width={28}
+            height={28}
+            className="w-7 h-7 rounded-full object-cover flex-shrink-0 border border-[var(--border)]"
+          />
+        ) : (
+          <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${avatarBg} flex items-center justify-center font-serif text-[11px] text-white font-normal flex-shrink-0 border border-[var(--border)]`}>
+            {amb.charAt(0)}
+          </div>
+        )
       ) : (
         <div className="w-7 h-7 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex items-center justify-center flex-shrink-0">
           <UsersIconSmall />
