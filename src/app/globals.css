@@ -545,6 +545,24 @@ body {
   border: 1px solid var(--border);
 }
 
+.brand-badge.b-lime {
+  background: rgba(203,236,69,0.2);
+  color: var(--dark);
+  border: 1px solid rgba(181,217,58,0.3);
+}
+
+.brand-badge.b-red {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid rgba(192,57,43,0.2);
+}
+
+.brand-badge.b-amber {
+  background: var(--amber-bg);
+  color: var(--amber);
+  border: 1px solid rgba(217,119,6,0.2);
+}
+
 .brand-sr {
   display: flex;
   align-items: flex-start;

@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/session";
+import { BrandAlertBanner } from "@/components/brand-alert-banner";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,25 +11,7 @@ export default async function BrandDemoDashboardPage() {
 
   return (
     <>
-      {/* Alert Banner */}
-      <div className="brand-alert" id="alert-bar">
-        <svg width="13" height="13" className="flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M8 1.5L1 14.5h14L8 1.5z" />
-          <line x1="8" y1="6.5" x2="8" y2="9.5" />
-          <line x1="8" y1="11.5" x2="8.01" y2="11.5" strokeWidth="2" />
-        </svg>
-        <div>
-          <strong>Action needed:</strong> Parker N. at Target LA has not filed her shift report — 2h overdue.{" "}
-          <span className="underline cursor-pointer font-semibold">Send reminder →</span>
-        </div>
-        <div className="w-px h-3.5 bg-amber/25 flex-shrink-0" />
-        <svg width="12" height="12" className="flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <polygon points="9,1.5 2.5,9.5 7.5,9.5 7,14.5 13.5,6.5 8.5,6.5" />
-        </svg>
-        <span className="whitespace-nowrap">
-          Sprouts Chicago: <strong>low velocity</strong> — 12/100 after 2 hrs
-        </span>
-      </div>
+      <BrandAlertBanner />
 
       <div className="brand-content">
         {/* Welcome */}
@@ -153,14 +136,65 @@ export default async function BrandDemoDashboardPage() {
                 ambassadorMeta="4.6★ · first shift here"
                 time="11:00 AM–3:00 PM"
                 location="Chicago, IL"
-                skus="Grape, Vintage Cola"
-                tags={["In Progress", "1 photo"]}
+                skus="Vintage Cola"
+                tags={["Slow Start", "1 photo"]}
                 samples="12 / 100"
                 progress={12}
                 progressClass="am"
-                note="Low velocity"
+                note="Below pace"
                 noteClass="text-[var(--amber)]"
               />
+              <ShiftRow
+                status="li"
+                store="Kroger — Green Hills, Nashville TN"
+                ambassador="Morgan W."
+                ambassadorMeta="4.7★ · 4 prior shifts"
+                time="1:00–6:00 PM"
+                location="Nashville, TN"
+                skus="Cherry Vanilla"
+                tags={["Confirmed · Starts 1pm"]}
+                samples="0 / 80"
+                progress={0}
+                progressClass="li"
+                note="Starts in 18 min"
+              />
+              <ShiftRow
+                status="gr"
+                store="HEB — Midtown Houston, TX"
+                ambassador="Blake T."
+                ambassadorMeta="Report filed"
+                ambassadorMetaClass="text-[var(--green)]"
+                time="9:00 AM–2:00 PM"
+                location="Houston, TX"
+                skus="Vintage Cola, Classic Grape"
+                tags={["Completed", "7 photos"]}
+                samples="120 / 120"
+                progress={100}
+                progressClass="gr"
+                note="100% complete"
+                noteClass="text-[var(--green)]"
+              />
+              <ShiftRow
+                status="re"
+                store="Safeway — Marina District, San Francisco CA"
+                ambassador="No ambassador assigned"
+                ambassadorMeta=""
+                ambassadorMetaClass="text-[var(--text3)]"
+                unassigned
+                time="2:00–6:00 PM"
+                location="San Francisco, CA"
+                skus=""
+                tags={["Needs Ambassador"]}
+                samples="— / 90"
+                progress={0}
+                progressClass="li"
+                note=""
+                showFindButton
+              />
+            </div>
+            <div className="border-t border-[var(--border)] py-2.5 px-4 flex justify-between items-center bg-[var(--elevated)] flex-shrink-0 mt-auto">
+              <span className="text-[11px] text-[var(--text3)]">Showing 6 of 14 shifts</span>
+              <a href="#" className="brand-ph-link">All shifts <ChevIcon /></a>
             </div>
           </div>
 
@@ -282,6 +316,8 @@ function ShiftRow({
   progressClass,
   note,
   noteClass,
+  unassigned,
+  showFindButton,
 }: {
   status: "gr" | "am" | "re" | "li";
   store: string;
@@ -297,9 +333,19 @@ function ShiftRow({
   progressClass: "li" | "gr" | "am";
   note: string;
   noteClass?: string;
+  unassigned?: boolean;
+  showFindButton?: boolean;
 }) {
   const statusBg = { gr: "bg-[var(--green-bg)] border-green/20", am: "bg-[var(--amber-bg)] border-amber/20", re: "bg-[var(--red-bg)] border-red/20", li: "bg-lime/15 border-lime-dark/30" }[status];
   const progressBg = { li: "bg-[var(--lime-dark)]", gr: "bg-[var(--green)]", am: "bg-[var(--amber)]" }[progressClass];
+  const getTagClass = (t: string) => {
+    if (t === "Needs Ambassador") return "brand-badge b-red";
+    if (t.startsWith("Completed")) return "brand-badge b-green";
+    if (t.startsWith("Confirmed")) return "brand-badge b-lime";
+    if (t === "In Progress") return "brand-badge b-green";
+    if (t === "Pending Report" || t === "Slow Start") return "brand-badge b-amber";
+    return "brand-badge b-muted";
+  };
   return (
     <div className="brand-sr">
       <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 border ${statusBg}`}>
@@ -311,27 +357,52 @@ function ShiftRow({
       <div className="flex-1 min-w-0">
         <div className="text-[12.5px] font-semibold text-[var(--dark)] truncate">{store}</div>
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-          <span className="w-4 h-4 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex-shrink-0" />
-          <span className="text-[11px] text-[var(--text2)]">{ambassador}</span>
-          <span className={`text-[10px] ${ambassadorMetaClass ?? "text-[var(--text3)]"}`}>{ambassadorMeta}</span>
+          {!unassigned && <span className="w-4 h-4 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex-shrink-0" />}
+          {unassigned && (
+            <svg width="12" height="12" className="text-[var(--text3)] flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="6" cy="5" r="2.5" />
+              <path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5" />
+              <line x1="12" y1="3" x2="12" y2="8" />
+              <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" />
+            </svg>
+          )}
+          <span className={`text-[11px] ${unassigned ? "text-[var(--text3)]" : "text-[var(--text2)]"}`}>{ambassador}</span>
+          {ambassadorMeta && <span className={`text-[10px] ${ambassadorMetaClass ?? "text-[var(--text3)]"}`}>{ambassadorMeta}</span>}
         </div>
         <div className="flex gap-2.5 mt-1 flex-wrap">
           <span className="text-[10px] text-[var(--text3)] inline-flex items-center gap-0.5">{time}</span>
           <span className="text-[10px] text-[var(--text3)] inline-flex items-center gap-0.5">{location}</span>
-          <span className="text-[10px] text-[var(--text3)] inline-flex items-center gap-0.5">{skus}</span>
+          {skus && <span className="text-[10px] text-[var(--text3)] inline-flex items-center gap-0.5">{skus}</span>}
         </div>
         <div className="flex gap-1 mt-1 flex-wrap">
           {tags.map((t) => (
-            <span key={t} className="brand-badge b-muted text-[8.5px]">{t}</span>
+            <span key={t} className={`text-[8.5px] ${getTagClass(t)}`}>{t}</span>
           ))}
         </div>
       </div>
       <div className="flex-shrink-0 w-[104px] text-right">
-        <div className="font-mono text-[13px] text-[var(--dark)] font-medium">{samples}</div>
-        <div className="w-full h-1 bg-[var(--elevated)] rounded mt-1 overflow-hidden">
-          <div className={`h-full rounded ${progressBg}`} style={{ width: `${progress}%` }} />
-        </div>
-        <div className={`text-[10px] text-[var(--text3)] mt-0.5 ${noteClass ?? ""}`}>{note}</div>
+        {showFindButton ? (
+          <>
+            <div className="font-mono text-[13px] text-[var(--text3)] font-medium">{samples}</div>
+            <button type="button" className="mt-2 text-[10px] font-bold bg-[var(--lime)] text-[#111] border-none py-1 px-2.5 rounded-full cursor-pointer inline-flex items-center gap-1 font-sans">
+              <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="6" cy="5" r="2.5" />
+                <path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5" />
+                <line x1="12" y1="3" x2="12" y2="8" />
+                <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" />
+              </svg>
+              Find Amb.
+            </button>
+          </>
+        ) : (
+          <>
+            <div className={`font-mono text-[13px] font-medium ${unassigned ? "text-[var(--text3)]" : "text-[var(--dark)]"}`}>{samples}</div>
+            <div className="w-full h-1 bg-[var(--elevated)] rounded mt-1 overflow-hidden">
+              <div className={`h-full rounded ${progressBg}`} style={{ width: `${progress}%` }} />
+            </div>
+            {note && <div className={`text-[10px] text-[var(--text3)] mt-0.5 ${noteClass ?? ""}`}>{note}</div>}
+          </>
+        )}
       </div>
     </div>
   );
