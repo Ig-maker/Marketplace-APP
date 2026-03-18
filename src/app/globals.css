@@ -6,7 +6,7 @@
   --elevated: #F0F0EB;
   --dark:     #111111;
   --border:   #E2E2DC;
-  --border2:  #C8C8C2;
+  --border2:  #CCCCC6;
   --text:     #111111;
   --text2:    #5A5A54;
   --text3:    #999994;
@@ -25,9 +25,10 @@
   --sb:       252px;
   --sh:    0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
   --sh-md: 0 4px 20px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04);
-  --r:    8px;
-  --r-lg: 14px;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --r:      8px;
+  --r-lg:   14px;
+  --r-pill: 999px;
+  --ease:   cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
@@ -55,6 +56,17 @@ body {
   color: var(--text);
   font-size: 15px;
   line-height: 1.6;
+}
+
+/* Subtle noise texture overlay (from Brand Dashboard HTML) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: 0.018;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Animation keyframes */
