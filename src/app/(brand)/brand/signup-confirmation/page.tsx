@@ -120,7 +120,7 @@ export default function BrandSignupConfirmationPage() {
 
           {/* CTA */}
           <Link
-            href="/dashboard"
+            href="/brand/demo-dashboard"
             className="w-full py-4 px-8 bg-[var(--lime)] text-[var(--dark)] font-sans text-[15px] font-semibold rounded-[var(--r)] flex items-center justify-center gap-2 no-underline transition-all duration-[180ms] hover:bg-[var(--lime-dark)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_var(--lime-glow)]"
             style={{ animation: "fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) 0.35s both" }}
           >
