@@ -1,8 +1,18 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { RetailerLogo } from "@/components/retailer-logo";
 import type { User } from "@/types/auth";
+
+function useLocalDate() {
+  const [dateStr, setDateStr] = useState("");
+  useEffect(() => {
+    const now = new Date();
+    setDateStr(now.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }));
+  }, []);
+  return dateStr;
+}
 
 const NAV_ITEMS = [
   { href: "/brand/demo-dashboard", label: "Overview", icon: "grid" },
@@ -36,6 +46,7 @@ export function BrandDashboardShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const localDate = useLocalDate();
   const displayName = brandName || "Brand";
   const managerLabel = `${user.name} · Brand Manager`;
 
@@ -198,8 +209,8 @@ export function BrandDashboardShell({
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-[10px] font-bold text-white border-2 border-[var(--border)] flex-shrink-0">
             {user.name.charAt(0).toUpperCase()}
           </div>
-          <div className="font-mono text-[10px] text-[var(--text3)] bg-[var(--elevated)] px-2.5 py-1 rounded-full border border-[var(--border)]">
-            Mar 17, 2026
+          <div className="font-mono text-[10px] text-[var(--text3)] bg-[var(--elevated)] px-2.5 py-1 rounded-full border border-[var(--border)]" suppressHydrationWarning>
+            {localDate || "—"}
           </div>
         </header>
 
