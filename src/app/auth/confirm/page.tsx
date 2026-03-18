@@ -97,7 +97,7 @@ function ConfirmHandler() {
         return;
       }
 
-      router.push("/onboarding/brand");
+      router.push("/brand/onboarding");
     };
 
     handleConfirm();
