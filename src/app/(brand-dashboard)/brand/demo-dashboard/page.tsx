@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/session";
 import { BrandAlertBanner } from "@/components/brand-alert-banner";
+import { RetailerLogo } from "@/components/retailer-logo";
 import Image from "next/image";
 import type { Metadata } from "next";
 
@@ -13,6 +14,80 @@ const AMBASSADOR_AVATARS: Record<string, string> = {
   "Reese M.": "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop",
   "Morgan W.": "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=150&h=150&fit=crop",
   "Blake T.": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&h=150&fit=crop",
+};
+
+const CITY_IMAGES: Record<string, string> = {
+  "Los Angeles": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=400&h=200&fit=crop",
+  Chicago: "https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=400&h=200&fit=crop",
+  Austin: "https://images.unsplash.com/photo-1565043667947-e69e3f0eb9ec?w=400&h=200&fit=crop",
+  Nashville: "https://images.unsplash.com/photo-1508807528931-b7cb6d2d9c51?w=400&h=200&fit=crop",
+};
+
+// Retailer name (from store string) -> logo URL (ifetchly API, no auth required)
+const RETAILER_LOGO_DOMAINS: Record<string, string> = {
+  "Whole Foods Market": "wholefoodsmarket.com",
+  "Whole Foods": "wholefoodsmarket.com",
+  Target: "target.com",
+  "Sprouts Farmers Market": "sprouts.com",
+  Sprouts: "sprouts.com",
+  Kroger: "kroger.com",
+  HEB: "heb.com",
+  Safeway: "safeway.com",
+};
+
+function getRetailerLogoUrl(store: string): string | null {
+  for (const [retailer, domain] of Object.entries(RETAILER_LOGO_DOMAINS)) {
+    if (store.startsWith(retailer)) {
+      return `https://logo.ifetchly.com/api/logo?domain=${domain}`;
+    }
+  }
+  return null;
+}
+
+const PRODUCT_ICONS: Record<
+  string,
+  { gradient: string; icon: React.ReactNode }
+> = {
+  "Cherry Vanilla": {
+    gradient: "linear-gradient(135deg,#ff6b6b,#ffd93d)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4" />
+      </svg>
+    ),
+  },
+  "Vintage Cola": {
+    gradient: "linear-gradient(135deg,#c0392b,#8e44ad)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <line x1="3" y1="6" x2="3.01" y2="6" strokeWidth="2.5" />
+        <line x1="3" y1="12" x2="3.01" y2="12" strokeWidth="2.5" />
+        <line x1="3" y1="18" x2="3.01" y2="18" strokeWidth="2.5" />
+      </svg>
+    ),
+  },
+  "Strawberry Vanilla": {
+    gradient: "linear-gradient(135deg,#e91e8c,#ff6b6b)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+      </svg>
+    ),
+  },
+  "Classic Grape": {
+    gradient: "linear-gradient(135deg,#6c3483,#1a5276)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+        <circle cx="8" cy="8" r="6" />
+        <path d="M18.09 10.37A6 6 0 1110.34 18" />
+        <path d="M7 6h1v4" />
+      </svg>
+    ),
+  },
 };
 
 export default async function BrandDemoDashboardPage() {
@@ -398,16 +473,16 @@ export default async function BrandDemoDashboardPage() {
               <a href="/brand/demo-dashboard" className="brand-ph-link">All <ChevIcon /></a>
             </div>
             <div className="brand-panel-body max-h-[320px] overflow-y-auto">
-              <ActivityRow icon="li" text={<><strong>Jenna K.</strong> uploaded 4 shift photos from Whole Foods Austin</>} time="2 min ago" />
-              <ActivityRow icon="gr" text={<><strong>Blake T.</strong> completed shift and filed full report · HEB Houston</>} time="28 min ago" />
-              <ActivityRow icon="am" text={<><strong>Sprouts Chicago</strong> flagged for low velocity — 12/100 after 2 hrs</>} time="35 min ago" />
-              <ActivityRow icon="re" text={<><strong>Parker N.</strong> shift report overdue (2h) · Target LA</>} time="1h ago" />
-              <ActivityRow icon="li" text={<>New shift posted — <strong>Safeway SF Marina</strong> Mar 20 · Ambassador needed</>} time="1h 8m ago" />
-              <ActivityRow icon="gr" text={<><strong>Morgan W.</strong> received a new 5-star AI-captured review</>} time="1h 22m ago" />
-              <ActivityRow icon="bl" text={<>Payout of <strong>$1,240</strong> processed for 6 ambassadors</>} time="3h ago" />
-              <ActivityRow icon="gr" text={<><strong>Reese M.</strong> checked in at Sprouts Chicago · Location verified</>} time="3h 15m ago" />
-              <ActivityRow icon="li" text={<>Sample kit shipped to <strong>Nashville Kroger</strong> · ETA today 12:30 PM</>} time="5h ago" />
-              <ActivityRow icon="am" text={<>Shift reminder sent to <strong>Morgan W.</strong> for 1:00 PM Nashville shift</>} time="6h ago" />
+              <ActivityRow icon="li" iconType="cam" text={<><strong>Jenna K.</strong> uploaded 4 shift photos from Whole Foods Austin</>} time="2 min ago" />
+              <ActivityRow icon="gr" iconType="check" text={<><strong>Blake T.</strong> completed shift and filed full report · HEB Houston</>} time="28 min ago" />
+              <ActivityRow icon="am" iconType="zap" text={<><strong>Sprouts Chicago</strong> flagged for low velocity — 12/100 after 2 hrs</>} time="35 min ago" />
+              <ActivityRow icon="re" iconType="warn" text={<><strong>Parker N.</strong> shift report overdue (2h) · Target LA</>} time="1h ago" />
+              <ActivityRow icon="li" iconType="plus" text={<>New shift posted — <strong>Safeway SF Marina</strong> Mar 20 · Ambassador needed</>} time="1h 8m ago" />
+              <ActivityRow icon="gr" iconType="star" text={<><strong>Morgan W.</strong> received a new 5-star AI-captured review</>} time="1h 22m ago" />
+              <ActivityRow icon="bl" iconType="dollar" text={<>Payout of <strong>$1,240</strong> processed for 6 ambassadors</>} time="3h ago" />
+              <ActivityRow icon="gr" iconType="pin" text={<><strong>Reese M.</strong> checked in at Sprouts Chicago · Location verified</>} time="3h 15m ago" />
+              <ActivityRow icon="li" iconType="box" text={<>Sample kit shipped to <strong>Nashville Kroger</strong> · ETA today 12:30 PM</>} time="5h ago" />
+              <ActivityRow icon="am" iconType="clock" text={<>Shift reminder sent to <strong>Morgan W.</strong> for 1:00 PM Nashville shift</>} time="6h ago" />
             </div>
           </div>
         </div>
@@ -620,9 +695,21 @@ function DollarIconSmall() {
 }
 
 function CityCard({ name, stats, live, badge, badgeClass }: { name: string; stats: string; live: string; badge: string; badgeClass: string }) {
+  const imageUrl = CITY_IMAGES[name];
   return (
     <div className="brand-city-card">
-      <div className={`brand-city-img bg-[var(--elevated)]`} />
+      <div
+        className="brand-city-img"
+        style={
+          imageUrl
+            ? {
+                backgroundImage: `url(${imageUrl})`,
+              }
+            : { background: "var(--elevated)" }
+        }
+      >
+        {imageUrl && <div className="brand-city-img-overlay" />}
+      </div>
       <div className="brand-city-body">
         <div className="brand-city-name">{name}</div>
         <div className="brand-city-stats">{stats}</div>
@@ -665,15 +752,23 @@ function SkuRow({
   targetClass: "green" | "amber" | "muted";
 }) {
   const targetBg = targetClass === "green" ? "b-green" : targetClass === "amber" ? "b-amber" : "b-muted";
+  const productIcon = PRODUCT_ICONS[name] ?? {
+    gradient: "linear-gradient(135deg,#94a3b8,#64748b)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+      </svg>
+    ),
+  };
   return (
     <tr>
       <td>
         <div className="flex items-center gap-2">
-          <div className="w-[26px] h-[26px] rounded-md bg-gradient-to-br from-rose-400 to-amber-400 flex items-center justify-center flex-shrink-0">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4" />
-            </svg>
+          <div
+            className="w-[26px] h-[26px] rounded-md flex items-center justify-center flex-shrink-0"
+            style={{ background: productIcon.gradient }}
+          >
+            {productIcon.icon}
           </div>
           <div>
             <div className="brand-p-name">{name}</div>
@@ -788,13 +883,26 @@ function ShiftRow({
     if (t === "Pending Report" || t === "Slow Start") return "brand-badge b-amber";
     return "brand-badge b-muted";
   };
+  const logoUrl = getRetailerLogoUrl(store);
+  const houseIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      <polyline points="9,22 9,12 15,12 15,22" />
+    </svg>
+  );
   return (
     <div className="brand-sr">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 border ${statusBg}`}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          <polyline points="9,22 9,12 15,12 15,22" />
-        </svg>
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 border overflow-hidden ${logoUrl ? "bg-white" : statusBg}`}>
+        {logoUrl ? (
+          <RetailerLogo
+            src={logoUrl}
+            size={36}
+            className="w-9 h-9 object-contain p-1"
+            fallback={houseIcon}
+          />
+        ) : (
+          houseIcon
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-[12.5px] font-semibold text-[var(--dark)] truncate">{store}</div>
@@ -898,6 +1006,7 @@ function AmbassadorRow({ name, sub, value, valueLabel, bar }: { name: string; su
 function UpcomingRow({ day, mon, store, meta, amb, badge, badgeClass }: { day: string; mon: string; store: string; meta: string; amb?: string; badge: string; badgeClass: string }) {
   const avatarUrl = amb ? AMBASSADOR_AVATARS[amb] : null;
   const avatarBg = amb && !avatarUrl ? ["from-indigo-500 to-violet-500", "from-amber-500 to-orange-500", "from-emerald-500 to-teal-500"][amb.charCodeAt(0) % 3] : "";
+  const retailerLogoUrl = getRetailerLogoUrl(store);
   return (
     <div className="brand-upc-row">
       <div className="brand-upc-date">
@@ -918,6 +1027,19 @@ function UpcomingRow({ day, mon, store, meta, amb, badge, badgeClass }: { day: s
             {amb.charAt(0)}
           </div>
         )
+      ) : retailerLogoUrl ? (
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 border border-[var(--border)] bg-white overflow-hidden p-0.5">
+          <RetailerLogo
+            src={retailerLogoUrl}
+            size={28}
+            className="w-full h-full object-contain"
+            fallback={
+              <div className="w-7 h-7 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex items-center justify-center flex-shrink-0">
+                <UsersIconSmall />
+              </div>
+            }
+          />
+        </div>
       ) : (
         <div className="w-7 h-7 rounded-full bg-[var(--elevated)] border border-[var(--border)] flex items-center justify-center flex-shrink-0">
           <UsersIconSmall />
@@ -1012,7 +1134,105 @@ function TranscriptRow({
   );
 }
 
-function ActivityRow({ icon, text, time }: { icon: "li" | "gr" | "am" | "re" | "bl"; text: React.ReactNode; time: string }) {
+const ACTIVITY_ICONS: Record<
+  string,
+  { path: React.ReactNode; colorClass: string }
+> = {
+  cam: {
+    path: (
+      <>
+        <path d="M14.5 12A1.5 1.5 0 0113 13.5H3A1.5 1.5 0 011.5 12V5.5A1.5 1.5 0 013 4h1.5L6 2h4l1.5 2H13A1.5 1.5 0 0114.5 5.5V12z" />
+        <circle cx="8" cy="8.5" r="2" />
+      </>
+    ),
+    colorClass: "text-[#111]",
+  },
+  check: {
+    path: (
+      <>
+        <circle cx="8" cy="8" r="6.5" />
+        <polyline points="5,8.5 7,10.5 11,6.5" />
+      </>
+    ),
+    colorClass: "text-[var(--green)]",
+  },
+  zap: {
+    path: <polygon points="9,1.5 2.5,9.5 7.5,9.5 7,14.5 13.5,6.5 8.5,6.5" />,
+    colorClass: "text-[var(--amber)]",
+  },
+  warn: {
+    path: (
+      <>
+        <path d="M8 1.5L1 14.5h14L8 1.5z" />
+        <line x1="8" y1="6.5" x2="8" y2="9.5" />
+        <line x1="8" y1="11.5" x2="8.01" y2="11.5" strokeWidth={2} />
+      </>
+    ),
+    colorClass: "text-[var(--red)]",
+  },
+  plus: {
+    path: (
+      <>
+        <line x1="8" y1="2" x2="8" y2="14" />
+        <line x1="2" y1="8" x2="14" y2="8" />
+      </>
+    ),
+    colorClass: "text-[#111]",
+  },
+  star: {
+    path: <polygon points="8,1.5 9.9,6.1 15,6.5 11.25,9.8 12.47,14.5 8,11.77 3.53,14.5 4.75,9.8 1,6.5 6.1,6.1" />,
+    colorClass: "text-[var(--green)]",
+  },
+  dollar: {
+    path: (
+      <>
+        <line x1="8" y1="1.5" x2="8" y2="14.5" />
+        <path d="M10.5 4H6.75a2.25 2.25 0 000 4.5h2.5a2.25 2.25 0 010 4.5H5" />
+      </>
+    ),
+    colorClass: "text-[var(--blue)]",
+  },
+  pin: {
+    path: (
+      <>
+        <path d="M8 1.5C5.52 1.5 3.5 3.52 3.5 6c0 3.75 4.5 8.5 4.5 8.5s4.5-4.75 4.5-8.5c0-2.48-2.02-4.5-4.5-4.5z" />
+        <circle cx="8" cy="6" r="1.5" />
+      </>
+    ),
+    colorClass: "text-[var(--green)]",
+  },
+  box: {
+    path: (
+      <>
+        <polyline points="14.5,5 8,1.5 1.5,5 1.5,11 8,14.5 14.5,11 14.5,5" />
+        <polyline points="1.5,5 8,8.5 14.5,5" />
+        <line x1="8" y1="8.5" x2="8" y2="14.5" />
+      </>
+    ),
+    colorClass: "text-[#111]",
+  },
+  clock: {
+    path: (
+      <>
+        <circle cx="8" cy="8" r="6.5" />
+        <polyline points="8,4.5 8,8 10.5,10" />
+      </>
+    ),
+    colorClass: "text-[var(--amber)]",
+  },
+};
+
+function ActivityRow({
+  icon,
+  iconType,
+  text,
+  time,
+}: {
+  icon: "li" | "gr" | "am" | "re" | "bl";
+  iconType: "cam" | "check" | "zap" | "warn" | "plus" | "star" | "dollar" | "pin" | "box" | "clock";
+  text: React.ReactNode;
+  time: string;
+}) {
   const iconBg = {
     li: "bg-lime/15 border-lime-dark/30",
     gr: "bg-[var(--green-bg)] border-green/20",
@@ -1020,11 +1240,22 @@ function ActivityRow({ icon, text, time }: { icon: "li" | "gr" | "am" | "re" | "
     re: "bg-[var(--red-bg)] border-red/20",
     bl: "bg-[var(--blue-bg)] border-blue/20",
   }[icon];
+  const activityIcon = ACTIVITY_ICONS[iconType] ?? ACTIVITY_ICONS.plus;
   return (
     <div className="brand-act-row">
       <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 border ${iconBg}`}>
-        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className={icon === "gr" ? "text-[var(--green)]" : icon === "am" ? "text-[var(--amber)]" : icon === "re" ? "text-[var(--red)]" : icon === "bl" ? "text-[var(--blue)]" : "text-[#111]"}>
-          <path d="M8 1v14M1 8h14" />
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={activityIcon.colorClass}
+        >
+          {activityIcon.path}
         </svg>
       </div>
       <div>

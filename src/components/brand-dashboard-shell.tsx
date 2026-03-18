@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { RetailerLogo } from "@/components/retailer-logo";
 import type { User } from "@/types/auth";
 
 const NAV_ITEMS = [
@@ -25,27 +26,73 @@ const OPS_ITEMS = [
 
 export function BrandDashboardShell({
   user,
+  brandName,
+  brandLogoUrl,
   children,
 }: {
   user: User;
+  brandName: string | null;
+  brandLogoUrl: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const displayName = brandName || "Brand";
+  const managerLabel = `${user.name} · Brand Manager`;
 
   return (
     <div className="min-h-screen bg-[var(--off)] flex overflow-x-hidden">
       {/* Sidebar */}
       <aside className="brand-sidebar">
-        <div className="brand-sidebar-logo">
-          <div className="w-[30px] h-[30px] bg-[var(--lime)] rounded-[7px] flex items-center justify-center flex-shrink-0">
-            <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
-              <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#111" />
-              <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#111" />
-              <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#111" />
-              <rect x="10" y="10" width="6" height="6" rx="1.5" fill="rgba(0,0,0,0.35)" />
-            </svg>
+        <div className="brand-sidebar-logo brand-sidebar-brand-header">
+          {brandLogoUrl ? (
+            <div className="w-10 h-10 rounded-[9px] overflow-hidden flex-shrink-0 bg-white/5 border border-white/10 flex items-center justify-center p-1">
+              <RetailerLogo
+                src={brandLogoUrl}
+                size={40}
+                className="w-full h-full object-contain"
+                fallback={
+                  <div className="w-10 h-10 bg-[var(--lime)] rounded-[9px] flex items-center justify-center">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#111" />
+                      <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#111" />
+                      <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#111" />
+                      <rect x="10" y="10" width="6" height="6" rx="1.5" fill="rgba(0,0,0,0.35)" />
+                    </svg>
+                  </div>
+                }
+              />
+            </div>
+          ) : (
+            <div className="w-10 h-10 bg-[var(--lime)] rounded-[9px] flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#111" />
+                <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#111" />
+                <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#111" />
+                <rect x="10" y="10" width="6" height="6" rx="1.5" fill="rgba(0,0,0,0.35)" />
+              </svg>
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="font-serif text-[16px] font-normal text-white leading-tight tracking-tight uppercase">
+              {displayName}
+            </div>
+            <div className="text-[10px] text-white/35 mt-0.5 leading-tight">
+              {managerLabel}
+            </div>
           </div>
-          <span className="font-serif text-lg text-white tracking-tight">Shelvian</span>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="rgba(255,255,255,0.2)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="flex-shrink-0"
+          >
+            <polyline points="4,10 8,6 12,10" />
+          </svg>
         </div>
 
         <div className="brand-sidebar-sec">Main</div>
@@ -91,17 +138,37 @@ export function BrandDashboardShell({
             <div className="brand-plan-tag">Pro</div>
           </div>
           <div className="brand-footer">
-            <div className="w-5 h-5 bg-[var(--lime)] rounded flex items-center justify-center flex-shrink-0">
-              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#111" strokeWidth="2.2" strokeLinecap="round">
-                <line x1="8" y1="1" x2="8" y2="15" />
-                <line x1="1" y1="8" x2="15" y2="8" />
-                <line x1="3" y1="3" x2="13" y2="13" />
-                <line x1="13" y1="3" x2="3" y2="13" />
-              </svg>
-            </div>
-            <div>
-              <div className="font-serif text-[11px] text-white/60">Shelvian</div>
-              <div className="text-[9px] text-white/30 mt-0.5">Ambassador Marketplace</div>
+            {brandLogoUrl ? (
+              <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-white/5 border border-white/10 flex items-center justify-center p-0.5">
+                <RetailerLogo
+                  src={brandLogoUrl}
+                  size={32}
+                  className="w-full h-full object-contain"
+                  fallback={
+                    <div className="w-8 h-8 bg-[var(--lime)] rounded-lg flex items-center justify-center">
+                      <svg width="12" height="12" viewBox="0 0 18 18" fill="none">
+                        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#111" />
+                        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#111" />
+                        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#111" />
+                        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="rgba(0,0,0,0.35)" />
+                      </svg>
+                    </div>
+                  }
+                />
+              </div>
+            ) : (
+              <div className="w-8 h-8 bg-[var(--lime)] rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg width="12" height="12" viewBox="0 0 18 18" fill="none">
+                  <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#111" />
+                  <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#111" />
+                  <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#111" />
+                  <rect x="10" y="10" width="6" height="6" rx="1.5" fill="rgba(0,0,0,0.35)" />
+                </svg>
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="font-serif text-[11px] text-white/60 truncate">{displayName}</div>
+              <div className="text-[9px] text-white/30 mt-0.5 truncate">{managerLabel}</div>
             </div>
           </div>
         </div>

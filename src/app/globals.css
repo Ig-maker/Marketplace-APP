@@ -179,6 +179,12 @@ body::before {
   flex-shrink: 0;
 }
 
+.brand-sidebar-brand-header .flex-1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .brand-sidebar-sec {
   font-size: 8.5px;
   font-weight: 600;
@@ -277,6 +283,7 @@ body::before {
   padding: 8px 4px 0;
   border-top: 1px solid rgba(255,255,255,0.06);
   margin-top: 8px;
+  min-width: 0;
 }
 
 .brand-main {
@@ -867,6 +874,14 @@ body::before {
   background: var(--elevated);
   background-size: cover;
   background-position: center;
+  position: relative;
+}
+
+.brand-city-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent 50%);
+  pointer-events: none;
 }
 
 .brand-city-body {
