@@ -22,6 +22,52 @@ const CITY_IMAGES: Record<string, string> = {
   Nashville: "https://images.unsplash.com/photo-1508807528931-b7cb6d2d9c51?w=400&h=200&fit=crop",
 };
 
+const PRODUCT_ICONS: Record<
+  string,
+  { gradient: string; icon: React.ReactNode }
+> = {
+  "Cherry Vanilla": {
+    gradient: "linear-gradient(135deg,#ff6b6b,#ffd93d)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4" />
+      </svg>
+    ),
+  },
+  "Vintage Cola": {
+    gradient: "linear-gradient(135deg,#c0392b,#8e44ad)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <line x1="3" y1="6" x2="3.01" y2="6" strokeWidth="2.5" />
+        <line x1="3" y1="12" x2="3.01" y2="12" strokeWidth="2.5" />
+        <line x1="3" y1="18" x2="3.01" y2="18" strokeWidth="2.5" />
+      </svg>
+    ),
+  },
+  "Strawberry Vanilla": {
+    gradient: "linear-gradient(135deg,#e91e8c,#ff6b6b)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+      </svg>
+    ),
+  },
+  "Classic Grape": {
+    gradient: "linear-gradient(135deg,#6c3483,#1a5276)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
+        <circle cx="8" cy="8" r="6" />
+        <path d="M18.09 10.37A6 6 0 1110.34 18" />
+        <path d="M7 6h1v4" />
+      </svg>
+    ),
+  },
+};
+
 export default async function BrandDemoDashboardPage() {
   const user = await getCurrentUser();
 
@@ -684,15 +730,23 @@ function SkuRow({
   targetClass: "green" | "amber" | "muted";
 }) {
   const targetBg = targetClass === "green" ? "b-green" : targetClass === "amber" ? "b-amber" : "b-muted";
+  const productIcon = PRODUCT_ICONS[name] ?? {
+    gradient: "linear-gradient(135deg,#94a3b8,#64748b)",
+    icon: (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+      </svg>
+    ),
+  };
   return (
     <tr>
       <td>
         <div className="flex items-center gap-2">
-          <div className="w-[26px] h-[26px] rounded-md bg-gradient-to-br from-rose-400 to-amber-400 flex items-center justify-center flex-shrink-0">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4" />
-            </svg>
+          <div
+            className="w-[26px] h-[26px] rounded-md flex items-center justify-center flex-shrink-0"
+            style={{ background: productIcon.gradient }}
+          >
+            {productIcon.icon}
           </div>
           <div>
             <div className="brand-p-name">{name}</div>
