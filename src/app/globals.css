@@ -867,6 +867,14 @@ body::before {
   background: var(--elevated);
   background-size: cover;
   background-position: center;
+  position: relative;
+}
+
+.brand-city-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent 50%);
+  pointer-events: none;
 }
 
 .brand-city-body {

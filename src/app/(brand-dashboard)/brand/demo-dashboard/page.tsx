@@ -15,6 +15,13 @@ const AMBASSADOR_AVATARS: Record<string, string> = {
   "Blake T.": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&h=150&fit=crop",
 };
 
+const CITY_IMAGES: Record<string, string> = {
+  "Los Angeles": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=400&h=200&fit=crop",
+  Chicago: "https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=400&h=200&fit=crop",
+  Austin: "https://images.unsplash.com/photo-1565043667947-e69e3f0eb9ec?w=400&h=200&fit=crop",
+  Nashville: "https://images.unsplash.com/photo-1508807528931-b7cb6d2d9c51?w=400&h=200&fit=crop",
+};
+
 export default async function BrandDemoDashboardPage() {
   const user = await getCurrentUser();
 
@@ -620,9 +627,21 @@ function DollarIconSmall() {
 }
 
 function CityCard({ name, stats, live, badge, badgeClass }: { name: string; stats: string; live: string; badge: string; badgeClass: string }) {
+  const imageUrl = CITY_IMAGES[name];
   return (
     <div className="brand-city-card">
-      <div className={`brand-city-img bg-[var(--elevated)]`} />
+      <div
+        className="brand-city-img"
+        style={
+          imageUrl
+            ? {
+                backgroundImage: `url(${imageUrl})`,
+              }
+            : { background: "var(--elevated)" }
+        }
+      >
+        {imageUrl && <div className="brand-city-img-overlay" />}
+      </div>
       <div className="brand-city-body">
         <div className="brand-city-name">{name}</div>
         <div className="brand-city-stats">{stats}</div>
